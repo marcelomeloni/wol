@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
@@ -23,11 +23,11 @@ export default function CheckoutPage() {
   const [cpf, setCpf] = useState('');
   const [phone, setPhone] = useState('');
 
-  // Endereços Salvos
+  // EndereÃ§os Salvos
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
-  // Estados de Endereço Novo e CEP
+  // Estados de EndereÃ§o Novo e CEP
   const [cep, setCep] = useState('');
   const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [addressData, setAddressData] = useState({
@@ -69,7 +69,7 @@ export default function CheckoutPage() {
 
       const token = localStorage.getItem('@wol:token');
       if (token) {
-        fetch('http://localhost:3333/api/addresses', {
+        fetch('https://wolbackend.vercel.app/api/addresses', {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(res => res.ok ? res.json() : [])
@@ -101,7 +101,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     
     if (!isAuthenticated) {
-      toast.error('Você precisa fazer login antes de fechar o pedido.');
+      toast.error('VocÃª precisa fazer login antes de fechar o pedido.');
       router.push('/login');
       return;
     }
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
       };
 
       const token = localStorage.getItem('@wol:token');
-      const res = await fetch('http://localhost:3333/api/orders', {
+      const res = await fetch('https://wolbackend.vercel.app/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
     
     setIsApplyingCoupon(true);
     try {
-      const res = await fetch('http://localhost:3333/api/coupons/validate', {
+      const res = await fetch('https://wolbackend.vercel.app/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: couponCode, subtotal: totalPrice })
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error?.message || 'Cupom inválido');
+        throw new Error(data.error?.message || 'Cupom invÃ¡lido');
       }
 
       setAppliedDiscount(data.discountAmount);
@@ -216,9 +216,9 @@ export default function CheckoutPage() {
             cidade: data.localidade || '',
             estado: data.uf || ''
           });
-          toast.success('Endereço preenchido automaticamente!');
+          toast.success('EndereÃ§o preenchido automaticamente!');
         } else {
-          toast.error('CEP não encontrado.');
+          toast.error('CEP nÃ£o encontrado.');
         }
       } catch (err) {
         toast.error('Erro ao buscar o CEP.');
@@ -251,7 +251,7 @@ export default function CheckoutPage() {
 
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           
-          {/* LEFT: Formulários */}
+          {/* LEFT: FormulÃ¡rios */}
           <form id="checkout-form" onSubmit={handleCheckout} className="flex-1 space-y-12">
             
             {/* Contato & Entrega */}
@@ -260,7 +260,7 @@ export default function CheckoutPage() {
                 1. Contato e Entrega
               </h2>
               
-              {/* Seção: Dados Pessoais */}
+              {/* SeÃ§Ã£o: Dados Pessoais */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite/40 mb-4">Dados Pessoais</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -283,12 +283,12 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Divisória */}
+              {/* DivisÃ³ria */}
               <div className="w-full h-px bg-wol-graphite/10 my-8"></div>
 
-              {/* Seção: Endereço */}
+              {/* SeÃ§Ã£o: EndereÃ§o */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite/40 mb-4">Endereço de Entrega</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite/40 mb-4">EndereÃ§o de Entrega</h3>
                 
                 {savedAddresses.length > 0 && (
                   <div className="space-y-3 mb-6">
@@ -304,7 +304,7 @@ export default function CheckoutPage() {
                         />
                         <div className="flex-1">
                           <p className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-1">
-                            {addr.is_main ? 'Endereço Principal' : 'Endereço Salvo'}
+                            {addr.is_main ? 'EndereÃ§o Principal' : 'EndereÃ§o Salvo'}
                           </p>
                           <p className="text-xs text-wol-graphite/70 leading-relaxed">
                             {addr.street}, {addr.number} {addr.complement ? `- ${addr.complement}` : ''}<br/>
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
                         checked={selectedAddressId === 'new'}
                         onChange={() => setSelectedAddressId('new')}
                       />
-                      <span className="text-sm font-bold uppercase tracking-widest text-wol-graphite">Entregar em outro endereço</span>
+                      <span className="text-sm font-bold uppercase tracking-widest text-wol-graphite">Entregar em outro endereÃ§o</span>
                     </label>
                   </div>
                 )}
@@ -339,12 +339,12 @@ export default function CheckoutPage() {
                         maxLength={9}
                         value={cep}
                         onChange={handleCepChange}
-                        placeholder="Somente números"
+                        placeholder="Somente nÃºmeros"
                         className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" 
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Endereço (Rua/Av)</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">EndereÃ§o (Rua/Av)</label>
                       <input 
                         type="text" 
                         required={selectedAddressId === 'new'}
@@ -354,7 +354,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Número</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">NÃºmero</label>
                       <input type="text" name="numero" required={selectedAddressId === 'new'} className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                     </div>
                     <div>
@@ -429,7 +429,7 @@ export default function CheckoutPage() {
                   )}
                 >
                   <CreditCard size={32} className="mb-3" />
-                  <span className="text-sm font-bold uppercase tracking-widest">Cartão</span>
+                  <span className="text-sm font-bold uppercase tracking-widest">CartÃ£o</span>
                 </button>
               </div>
 
@@ -438,19 +438,19 @@ export default function CheckoutPage() {
                 {paymentMethod === 'pix' ? (
                   <div className="bg-[#f9f9f9] p-6 text-center border border-wol-graphite/10">
                     <QrCode size={48} className="mx-auto text-wol-graphite/40 mb-4" />
-                    <h3 className="font-bold uppercase tracking-widest text-sm text-wol-graphite mb-2">Pagamento Rápido</h3>
+                    <h3 className="font-bold uppercase tracking-widest text-sm text-wol-graphite mb-2">Pagamento RÃ¡pido</h3>
                     <p className="text-xs text-wol-graphite/70 max-w-sm mx-auto leading-relaxed">
-                      O código PIX será gerado após a confirmação do pedido. Você terá 15 minutos para realizar o pagamento.
+                      O cÃ³digo PIX serÃ¡ gerado apÃ³s a confirmaÃ§Ã£o do pedido. VocÃª terÃ¡ 15 minutos para realizar o pagamento.
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4 p-6 border border-wol-graphite/20">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Número do Cartão</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">NÃºmero do CartÃ£o</label>
                       <input type="text" placeholder="0000 0000 0000 0000" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Nome impresso no Cartão</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Nome impresso no CartÃ£o</label>
                       <input type="text" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -558,7 +558,7 @@ export default function CheckoutPage() {
 
               <div className="mt-6 text-center">
                 <p className="text-[10px] text-wol-graphite/40 uppercase tracking-widest leading-relaxed">
-                  Ambiente Seguro. Todos os seus dados são criptografados de ponta a ponta.
+                  Ambiente Seguro. Todos os seus dados sÃ£o criptografados de ponta a ponta.
                 </p>
               </div>
             </div>
@@ -569,3 +569,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+

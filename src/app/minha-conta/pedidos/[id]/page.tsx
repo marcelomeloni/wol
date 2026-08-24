@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Package, MapPin, CreditCard, Receipt, CircleNotch } from '@phosphor-icons/react';
+import { ArrowLeft, Package, MapPin, CreditCard, Receipt, CircleNotch, Truck } from '@phosphor-icons/react';
 import { use, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -17,7 +17,7 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
         const token = localStorage.getItem('@wol:token');
         if (!token) return;
 
-        const res = await fetch(`http://localhost:3333/api/orders/${unwrappedParams.id}`, {
+        const res = await fetch(`https://wolbackend.vercel.app/api/orders/${unwrappedParams.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -146,6 +146,24 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
         {/* Right Column - Info */}
         <div className="space-y-6">
           
+          {/* Rastreio */}
+          {order.tracking_code && (
+            <div className="border border-wol-graphite p-6 bg-wol-graphite text-wol-white">
+              <h3 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Truck size={16} /> Rastreamento
+              </h3>
+              <p className="text-sm font-mono tracking-wider">{order.tracking_code}</p>
+              <a 
+                href={`https://linkcorreios.com.br/${order.tracking_code}`} 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-[10px] uppercase font-bold text-wol-pink hover:underline mt-4 inline-block"
+              >
+                Acompanhar Entrega &rarr;
+              </a>
+            </div>
+          )}
+
           {/* Resumo Financeiro */}
           <div className="border border-wol-graphite/10 p-6">
             <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite mb-6 flex items-center gap-2">

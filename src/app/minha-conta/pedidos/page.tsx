@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Package, CircleNotch } from '@phosphor-icons/react';
 import Link from 'next/link';
@@ -31,7 +31,7 @@ export default function MinhaContaPedidos() {
         const token = localStorage.getItem('@wol:token');
         if (!token) return;
 
-        const res = await fetch('http://localhost:3333/api/orders', {
+        const res = await fetch('https://wolbackend.vercel.app/api/orders', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -63,7 +63,7 @@ export default function MinhaContaPedidos() {
       // Order Status
       'PENDING': 'PENDENTE',
       'PAYMENT_APPROVED': 'PAGO',
-      'PREPARING': 'EM SEPARAÇÃO',
+      'PREPARING': 'EM SEPARAÃ‡ÃƒO',
       'SHIPPED': 'ENVIADO',
       'DELIVERED': 'ENTREGUE',
       'CANCELED': 'CANCELADO',
@@ -74,7 +74,7 @@ export default function MinhaContaPedidos() {
       // Fallbacks just in case
       'pending': 'PENDENTE',
       'paid': 'PAGO',
-      'processing': 'EM SEPARAÇÃO',
+      'processing': 'EM SEPARAÃ‡ÃƒO',
       'shipped': 'ENVIADO',
       'delivered': 'ENTREGUE',
       'cancelled': 'CANCELADO'
@@ -141,3 +141,4 @@ export default function MinhaContaPedidos() {
     </div>
   );
 }
+

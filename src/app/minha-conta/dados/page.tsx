@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { User, CircleNotch } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
@@ -46,7 +46,7 @@ export default function MinhaContaDados() {
       const token = localStorage.getItem('@wol:token');
       const rawPhone = phone.replace(/\D/g, '');
       
-      const res = await fetch('http://localhost:3333/api/auth/me', {
+      const res = await fetch('https://wolbackend.vercel.app/api/auth/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export default function MinhaContaDados() {
         <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2 flex items-center gap-2">
           <User size={20} /> Meus Dados
         </h2>
-        <p className="text-xs text-wol-graphite/60">Atualize suas informações pessoais e credenciais.</p>
+        <p className="text-xs text-wol-graphite/60">Atualize suas informaÃ§Ãµes pessoais e credenciais.</p>
       </div>
 
       <form onSubmit={handleSave} className="max-w-2xl space-y-6">
@@ -105,7 +105,7 @@ export default function MinhaContaDados() {
               disabled
               className="w-full border border-wol-graphite/10 bg-[#f9f9f9] text-wol-graphite/50 h-12 px-4 outline-none text-sm cursor-not-allowed" 
             />
-            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O e-mail não pode ser alterado.</span>
+            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O e-mail nÃ£o pode ser alterado.</span>
           </div>
 
           <div>
@@ -116,7 +116,7 @@ export default function MinhaContaDados() {
               disabled
               className="w-full border border-wol-graphite/10 bg-[#f9f9f9] text-wol-graphite/50 h-12 px-4 outline-none text-sm cursor-not-allowed" 
             />
-            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O CPF não pode ser alterado após o cadastro.</span>
+            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O CPF nÃ£o pode ser alterado apÃ³s o cadastro.</span>
           </div>
 
           <div>
@@ -143,7 +143,7 @@ export default function MinhaContaDados() {
                 Salvando...
               </>
             ) : (
-              'Salvar Alterações'
+              'Salvar AlteraÃ§Ãµes'
             )}
           </button>
         </div>
@@ -151,3 +151,4 @@ export default function MinhaContaDados() {
     </div>
   );
 }
+

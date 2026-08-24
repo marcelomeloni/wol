@@ -48,6 +48,7 @@ export default function MinhaContaLayout({
                   return (
                     <button
                       key={item.name}
+                      type="button"
                       onClick={() => logout()}
                       className="flex w-full items-center gap-3 px-4 py-4 text-xs font-bold uppercase tracking-widest transition-colors border-l-2 border-transparent text-wol-graphite/60 hover:bg-wol-white hover:text-wol-graphite text-left"
                     >

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
@@ -24,7 +24,7 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-const API_URL = 'http://localhost:3333/api';
+const API_URL = 'https://wolbackend.vercel.app/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       if (!res.ok) {
-        // Se a mensagem for um array do Zod, lançamos o objeto para o componente lidar
+        // Se a mensagem for um array do Zod, lanÃ§amos o objeto para o componente lidar
         const errorData = result?.error?.message;
         if (Array.isArray(errorData)) {
           throw { isValidationError: true, errors: errorData };
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(errorData || 'Erro ao criar conta');
       }
 
-      toast.success('Conta criada com sucesso! Faça login para continuar.');
+      toast.success('Conta criada com sucesso! FaÃ§a login para continuar.');
     } catch (err: any) {
       if (!err.isValidationError) {
         toast.error(err.message || 'Erro desconhecido');
@@ -134,8 +134,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem('@wol:token');
     setUser(null);
-    toast.success('Você saiu da sua conta.');
-    router.push('/login');
+    toast.success('VocÃª saiu da sua conta.');
+    window.location.href = '/login';
   };
 
   return (
@@ -152,3 +152,4 @@ export function useAuth() {
   }
   return context;
 }
+
