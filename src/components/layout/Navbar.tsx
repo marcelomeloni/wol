@@ -124,7 +124,7 @@ export function Navbar() {
             </Link>
           ))}
           <Link
-            href="/login"
+            href={isAuthenticated ? "/minha-conta/pedidos" : "/login"}
             onClick={toggleMenu}
             className="flex items-center gap-2 text-xl font-display uppercase tracking-widest text-wol-graphite hover:opacity-50 mt-8"
           >

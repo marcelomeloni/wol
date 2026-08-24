@@ -1,13 +1,16 @@
-'use client';
+﻿'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, EnvelopeSimple, LockKey, User, IdentificationCard, Phone, CircleNotch } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function LoginPage() {
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirectUrl') || '/minha-conta/pedidos';
   const [mode, setMode] = useState<'login' | 'register'>('login');
   
   // Form states
@@ -45,7 +48,7 @@ export default function LoginPage() {
     
     try {
       if (mode === 'login') {
-        await login({ email, password });
+        await login({ email, password }, redirectUrl);
       } else {
         const rawCpf = cpf.replace(/\D/g, '');
         const rawPhone = phone.replace(/\D/g, '');
@@ -238,3 +241,6 @@ export default function LoginPage() {
     </div>
   );
 }
+
+
+export default function LoginPage() { return <Suspense fallback={<div>Carregando...</div>}><LoginContent /></Suspense>; }

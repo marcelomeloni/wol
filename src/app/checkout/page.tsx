@@ -12,10 +12,16 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
-  const { isAuthenticated, user } = useAuth(); // NEW
+  const { isAuthenticated, user, isLoading } = useAuth(); // NEW
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card'>('pix');
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login?redirectUrl=/checkout');
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   // Dados Pessoais Controlados
   const [name, setName] = useState('');

@@ -17,7 +17,7 @@ interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: any) => Promise<void>;
+  login: (data: any, redirectUrl?: string) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
 }
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (data: any) => {
+  const login = async (data: any, redirectUrl?: string) => {
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('@wol:token', result.token);
       setUser(result.user);
       toast.success('Bem-vinda de volta!');
-      router.push('/minha-conta/pedidos');
+      router.push(redirectUrl || '/minha-conta/pedidos');
     } catch (err: any) {
       if (!err.isValidationError) {
         toast.error(err.message || 'Erro desconhecido');
