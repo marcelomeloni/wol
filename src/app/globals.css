@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'TAN Buster';
+  src: url('/TAN-Buster-Font/TAN-BUSTER-Regular.woff2') format('woff2'),
+       url('/TAN-Buster-Font/TAN-BUSTER-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-wol-graphite: #303039;
+  --color-wol-pink: #ffe2e5;
+  --color-wol-black: #000000;
+  --color-wol-white: #ffffff;
+  --color-wol-yellow: #fffdde;
+  --color-wol-gray: #e4e4e4;
+
+  --font-sans: "League Spartan", sans-serif;
+  --font-display: "TAN Buster", serif;
+  --font-logo: "TAN Buster", serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #303039;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-wol-pink);
+  color: var(--color-wol-black);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-wol-graphite);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-wol-pink);
+  border-radius: 3px;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-wol-pink);
+  outline-offset: 2px;
+}
+
+a, button, input, select, textarea {
+  transition: all 0.2s ease-in-out;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-logo {
+  font-family: var(--font-logo);
+}
