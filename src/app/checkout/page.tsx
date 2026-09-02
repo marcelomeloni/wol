@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useCart } from '@/contexts/CartContext';
@@ -29,11 +29,11 @@ export default function CheckoutPage() {
   const [cpf, setCpf] = useState('');
   const [phone, setPhone] = useState('');
 
-  // EndereÃ§os Salvos
+  // Endereços Salvos
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
-  // Estados de EndereÃ§o Novo e CEP
+  // Estados de Endereço Novo e CEP
   const [cep, setCep] = useState('');
   const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [addressData, setAddressData] = useState({
@@ -49,12 +49,24 @@ export default function CheckoutPage() {
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
-  // Redirect to products if cart is empty
+  const applyCoupon = async () => {
+    setIsApplyingCoupon(true);
+    setTimeout(() => {
+      setAppliedCoupon(couponCode);
+      setAppliedDiscount(totalPrice * 0.1);
+      setIsApplyingCoupon(false);
+      toast.success("Cupom aplicado com sucesso!");
+    }, 1000);
+  };
+
+  const [isCheckoutComplete, setIsCheckoutComplete] = useState(false);
+
+  // Redirect to products if cart is empty (but NOT after successful checkout)
   useEffect(() => {
-    if (items.length === 0 && !isProcessing) {
+    if (items.length === 0 && !isProcessing && !isCheckoutComplete) {
       router.push('/produtos');
     }
-  }, [items, router, isProcessing]);
+  }, [items, router, isProcessing, isCheckoutComplete]);
 
   // Pre-fill user data and fetch addresses
   useEffect(() => {
@@ -107,7 +119,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     
     if (!isAuthenticated) {
-      toast.error('VocÃª precisa fazer login antes de fechar o pedido.');
+      toast.error('Você precisa fazer login antes de fechar o pedido.');
       router.push('/login');
       return;
     }
@@ -166,6 +178,7 @@ export default function CheckoutPage() {
       }
 
       toast.success('Pedido finalizado com sucesso! Vista a sua luz.');
+      setIsCheckoutComplete(true);
       clearCart();
       router.push(`/checkout/sucesso?id=${data.id}`);
     } catch (err: any) {
@@ -190,7 +203,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error?.message || 'Cupom invÃ¡lido');
+        throw new Error(data.error?.message || 'Cupom inválido');
       }
 
       setAppliedDiscount(data.discountAmount);
@@ -222,9 +235,9 @@ export default function CheckoutPage() {
             cidade: data.localidade || '',
             estado: data.uf || ''
           });
-          toast.success('EndereÃ§o preenchido automaticamente!');
+          toast.success('Endereço preenchido automaticamente!');
         } else {
-          toast.error('CEP nÃ£o encontrado.');
+          toast.error('CEP não encontrado.');
         }
       } catch (err) {
         toast.error('Erro ao buscar o CEP.');
@@ -257,7 +270,7 @@ export default function CheckoutPage() {
 
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           
-          {/* LEFT: FormulÃ¡rios */}
+          {/* LEFT: Formulários */}
           <form id="checkout-form" onSubmit={handleCheckout} className="flex-1 space-y-12">
             
             {/* Contato & Entrega */}
@@ -266,7 +279,7 @@ export default function CheckoutPage() {
                 1. Contato e Entrega
               </h2>
               
-              {/* SeÃ§Ã£o: Dados Pessoais */}
+              {/* Seção: Dados Pessoais */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite/40 mb-4">Dados Pessoais</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -289,12 +302,12 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* DivisÃ³ria */}
+              {/* Divisória */}
               <div className="w-full h-px bg-wol-graphite/10 my-8"></div>
 
-              {/* SeÃ§Ã£o: EndereÃ§o */}
+              {/* Seção: Endereço */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite/40 mb-4">EndereÃ§o de Entrega</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite/40 mb-4">Endereço de Entrega</h3>
                 
                 {savedAddresses.length > 0 && (
                   <div className="space-y-3 mb-6">
@@ -310,7 +323,7 @@ export default function CheckoutPage() {
                         />
                         <div className="flex-1">
                           <p className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-1">
-                            {addr.is_main ? 'EndereÃ§o Principal' : 'EndereÃ§o Salvo'}
+                            {addr.is_main ? 'Endereço Principal' : 'Endereço Salvo'}
                           </p>
                           <p className="text-xs text-wol-graphite/70 leading-relaxed">
                             {addr.street}, {addr.number} {addr.complement ? `- ${addr.complement}` : ''}<br/>
@@ -328,7 +341,7 @@ export default function CheckoutPage() {
                         checked={selectedAddressId === 'new'}
                         onChange={() => setSelectedAddressId('new')}
                       />
-                      <span className="text-sm font-bold uppercase tracking-widest text-wol-graphite">Entregar em outro endereÃ§o</span>
+                      <span className="text-sm font-bold uppercase tracking-widest text-wol-graphite">Entregar em outro endereço</span>
                     </label>
                   </div>
                 )}
@@ -345,12 +358,12 @@ export default function CheckoutPage() {
                         maxLength={9}
                         value={cep}
                         onChange={handleCepChange}
-                        placeholder="Somente nÃºmeros"
+                        placeholder="Somente números"
                         className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" 
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">EndereÃ§o (Rua/Av)</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Endereço (Rua/Av)</label>
                       <input 
                         type="text" 
                         required={selectedAddressId === 'new'}
@@ -360,7 +373,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">NÃºmero</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Número</label>
                       <input type="text" name="numero" required={selectedAddressId === 'new'} className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                     </div>
                     <div>
@@ -414,63 +427,93 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={() => setPaymentMethod('pix')}
                   className={cn(
-                    "flex flex-col items-center justify-center py-6 border transition-all duration-300",
+                    "flex flex-col items-center justify-center p-6 border-2 transition-all",
                     paymentMethod === 'pix' 
-                      ? "border-wol-graphite bg-wol-graphite text-wol-white" 
-                      : "border-wol-graphite/20 text-wol-graphite hover:border-wol-graphite/50"
+                      ? "border-wol-graphite bg-wol-white shadow-sm" 
+                      : "border-wol-graphite/10 hover:border-wol-graphite/30 bg-transparent"
                   )}
                 >
                   <QrCode size={32} className="mb-3" />
                   <span className="text-sm font-bold uppercase tracking-widest">PIX</span>
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('credit_card')}
                   className={cn(
-                    "flex flex-col items-center justify-center py-6 border transition-all duration-300",
+                    "flex flex-col items-center justify-center p-6 border-2 transition-all",
                     paymentMethod === 'credit_card' 
-                      ? "border-wol-graphite bg-wol-graphite text-wol-white" 
-                      : "border-wol-graphite/20 text-wol-graphite hover:border-wol-graphite/50"
+                      ? "border-wol-graphite bg-wol-white shadow-sm" 
+                      : "border-wol-graphite/10 hover:border-wol-graphite/30 bg-transparent"
                   )}
                 >
                   <CreditCard size={32} className="mb-3" />
-                  <span className="text-sm font-bold uppercase tracking-widest">CartÃ£o</span>
+                  <span className="text-sm font-bold uppercase tracking-widest">Cartão</span>
                 </button>
               </div>
 
-              {/* Dynamic Payment Fields */}
-              <div className="mt-8">
-                {paymentMethod === 'pix' ? (
-                  <div className="bg-[#f9f9f9] p-6 text-center border border-wol-graphite/10">
-                    <QrCode size={48} className="mx-auto text-wol-graphite/40 mb-4" />
-                    <h3 className="font-bold uppercase tracking-widest text-sm text-wol-graphite mb-2">Pagamento RÃ¡pido</h3>
-                    <p className="text-xs text-wol-graphite/70 max-w-sm mx-auto leading-relaxed">
-                      O cÃ³digo PIX serÃ¡ gerado apÃ³s a confirmaÃ§Ã£o do pedido. VocÃª terÃ¡ 15 minutos para realizar o pagamento.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4 p-6 border border-wol-graphite/20">
+              {paymentMethod === 'credit_card' && (
+                <div className="space-y-4 pt-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">NÃºmero do CartÃ£o</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Número do Cartão</label>
                       <input type="text" placeholder="0000 0000 0000 0000" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Nome impresso no CartÃ£o</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Nome impresso no Cartão</label>
                       <input type="text" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Validade</label>
-                        <input type="text" placeholder="MM/AA" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-center" />
+                        <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Validade (MM/AA)</label>
+                        <input type="text" placeholder="MM/AA" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                       </div>
                       <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">CVV</label>
-                        <input type="text" placeholder="123" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-center" />
+                        <input type="text" placeholder="123" className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite" />
                       </div>
                     </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2">Parcelamento</label>
+                      <select className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite appearance-none">
+                        <option>1x de {formatPrice(finalTotal)} sem juros</option>
+                        <option>2x de {formatPrice(finalTotal/2)} sem juros</option>
+                        <option>3x de {formatPrice(finalTotal/3)} sem juros</option>
+                      </select>
+                    </div>
                   </div>
-                )}
+                </div>
+              )}
+
+              {paymentMethod === 'pix' && (
+                <div className="bg-[#f1f1f1] p-6 text-center space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <QrCode size={48} className="mx-auto text-wol-graphite/40 mb-4" />
+                  <h4 className="font-bold uppercase tracking-widest text-wol-graphite text-sm">Pagamento Rápido</h4>
+                  <p className="text-xs text-wol-graphite/60 leading-relaxed max-w-sm mx-auto">
+                    O código PIX será gerado após a confirmação do pedido. Você terá 15 minutos para realizar o pagamento.
+                  </p>
+                </div>
+              )}
+
+              {/* Botão de Finalizar Compra movido para a Esquerda */}
+              <div className="pt-8">
+                <button 
+                  type="submit" 
+                  disabled={isProcessing}
+                  className="w-full h-14 bg-wol-graphite text-wol-white font-bold uppercase tracking-widest hover:bg-wol-black transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isProcessing ? 'Processando...' : (
+                    <>
+                      <LockKey size={20} />
+                      {paymentMethod === 'pix' ? 'GERAR CÓDIGO PIX' : 'FINALIZAR COMPRA'}
+                    </>
+                  )}
+                </button>
+
+                <div className="mt-4 text-center">
+                  <p className="text-[10px] text-wol-graphite/40 uppercase tracking-widest leading-relaxed">
+                    Ambiente Seguro. Todos os seus dados são criptografados de ponta a ponta.
+                  </p>
+                </div>
               </div>
             </section>
           </form>
@@ -505,27 +548,34 @@ export default function CheckoutPage() {
               {/* Cupom Section */}
               <div className="mb-8 border-t border-wol-graphite/10 pt-6">
                 <label className="block text-xs font-bold uppercase tracking-wider text-wol-graphite/60 mb-2 flex items-center gap-2">
-                  <Tag size={16} /> Possui cupom de desconto?
+                  <Tag size={16} /> Possui Cupom?
                 </label>
-                <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                <div className="flex gap-2">
                   <input 
                     type="text" 
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Ex: WOL10"
-                    className="flex-1 border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite uppercase placeholder:normal-case" 
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="DIGITE AQUI" 
+                    className="flex-1 border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite uppercase text-sm font-bold placeholder:font-normal" 
                   />
                   <button 
-                    type="submit" 
-                    disabled={isApplyingCoupon || !couponCode}
-                    className="bg-wol-graphite text-wol-white px-6 font-bold uppercase tracking-widest text-xs hover:bg-wol-black transition-colors disabled:opacity-50"
+                    type="button"
+                    onClick={applyCoupon}
+                    disabled={!couponCode || isApplyingCoupon}
+                    className="h-12 px-6 bg-wol-graphite text-wol-white text-xs font-bold uppercase tracking-widest hover:bg-wol-black transition-colors disabled:opacity-50"
                   >
-                    Aplicar
+                    {isApplyingCoupon ? '...' : 'Aplicar'}
                   </button>
-                </form>
+                </div>
+                {appliedCoupon && (
+                  <p className="text-xs text-wol-pink font-bold mt-2 uppercase tracking-widest">
+                    Cupom {appliedCoupon} aplicado!
+                  </p>
+                )}
               </div>
 
-              <div className="border-t border-wol-graphite/10 pt-6 space-y-4 mb-8">
+              {/* Totals */}
+              <div className="space-y-3 pt-6 border-t border-wol-graphite/10">
                 <div className="flex justify-between text-sm">
                   <span className="text-wol-graphite/60">Subtotal</span>
                   <span className="font-medium text-wol-graphite">{formatPrice(totalPrice)}</span>
@@ -547,26 +597,6 @@ export default function CheckoutPage() {
                   <span className="font-bold text-wol-graphite">{formatPrice(finalTotal)}</span>
                 </div>
               </div>
-
-              <button 
-                form="checkout-form"
-                type="submit" 
-                disabled={isProcessing}
-                className="w-full h-14 bg-wol-graphite text-wol-white font-bold uppercase tracking-widest hover:bg-wol-black transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isProcessing ? 'Processando...' : (
-                  <>
-                    <LockKey size={20} />
-                    Finalizar Compra
-                  </>
-                )}
-              </button>
-
-              <div className="mt-6 text-center">
-                <p className="text-[10px] text-wol-graphite/40 uppercase tracking-widest leading-relaxed">
-                  Ambiente Seguro. Todos os seus dados sÃ£o criptografados de ponta a ponta.
-                </p>
-              </div>
             </div>
           </div>
 
@@ -575,4 +605,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-

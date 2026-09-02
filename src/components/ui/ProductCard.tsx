@@ -18,7 +18,7 @@ interface ProductCardProps {
 export function ProductCard({ product, selectedVariantIndex, className, showColorSelector = true }: ProductCardProps) {
   const defaultIdx = selectedVariantIndex !== undefined 
     ? selectedVariantIndex 
-    : Math.max(0, product.variants.findIndex(v => v.color === 'preto'));
+    : Math.max(0, product.variants.findIndex(v => v.color === 'branco'));
 
   const [activeVariantIdx, setActiveVariantIdx] = useState(defaultIdx);
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -39,8 +39,7 @@ export function ProductCard({ product, selectedVariantIndex, className, showColo
       <Link 
         href={`/produtos/${product.slug}`} 
         className={cn(
-          "relative block aspect-[3/4] w-full overflow-hidden rounded-2xl transition-colors duration-500",
-          variant.color === 'branco' ? 'bg-wol-black' : 'bg-wol-white'
+          "relative block aspect-[3/4] w-full overflow-hidden rounded-2xl transition-colors duration-500 bg-[#f9f9f9]"
         )}
       >
         {/* Botão de Favorito */}

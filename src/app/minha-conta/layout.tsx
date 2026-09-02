@@ -1,6 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { Container } from '@/components/ui/Container';
 import { User, Package, MapPin, SignOut, Heart } from '@phosphor-icons/react';
@@ -21,7 +22,18 @@ export default function MinhaContaLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { user, isLoading, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login?redirectUrl=/minha-conta/pedidos');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    return <div className="min-h-screen flex justify-center items-center bg-[#f9f9f9]"><p className="text-wol-graphite/50 text-xs font-bold uppercase tracking-widest">Carregando...</p></div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#f9f9f9] py-12">

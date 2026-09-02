@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -215,27 +215,15 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* RIGHT: Imagem de Impacto & Tipografia */}
+      {/* RIGHT: Imagem */}
       <div className="hidden lg:flex w-1/2 bg-[#111111] relative items-center justify-center overflow-hidden">
-        
-        {/* Imagem gerada */}
         <Image 
-          src="/loginimage.png" 
+          src="/loginimage.jpg" 
           alt="WOL Darkness and Light"
           fill
           priority
-          className="object-cover opacity-90 transition-transform duration-[3s] hover:scale-105"
+          className="object-cover"
         />
-
-        {/* Gradiente escuro no rodapé para destacar a tipografia */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30 z-10" />
-
-        {/* Tipografia Minimalista (Estilo Editorial) */}
-        <div className="absolute bottom-12 left-0 right-0 z-20 flex flex-col items-center justify-center text-center">
-          <h2 className="font-display text-4xl md:text-5xl tracking-[0.15em] text-wol-white opacity-90 drop-shadow-lg">
-            WORDS OF LIGHT
-          </h2>
-        </div>
       </div>
 
     </div>

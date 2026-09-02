@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -8,9 +8,11 @@ import { products } from '@/lib/data';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
-import { use } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'react-hot-toast';
+import { Star, User } from '@phosphor-icons/react';
+import { useEffect } from 'react';
+import { format } from 'date-fns';
 
 export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = use(params);
@@ -22,10 +24,31 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
   const { addItem } = useCart();
 
-  const defaultIdx = Math.max(0, product.variants.findIndex(v => v.color === 'preto'));
+  const defaultIdx = Math.max(0, product.variants.findIndex(v => v.color === 'branco'));
   const [activeVariantIdx, setActiveVariantIdx] = useState(defaultIdx);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [activeImage, setActiveImage] = useState<'front' | 'back'>('front');
+  
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+
+  useEffect(() => {
+    if (!product) return;
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/reviews/${product.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setReviews(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+    fetchReviews();
+  }, [product]);
 
   const variant = product.variants[activeVariantIdx];
   const sizes = ['P', 'M', 'G', 'GG'];
@@ -46,10 +69,10 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
           <span className="text-wol-graphite">{product.name}</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           
-          {/* Left Column: Image Gallery */}
-          <div className="flex-1 flex flex-col md:flex-row gap-4 lg:gap-6">
+          {/* Left Column: Image Gallery (fixed to 7 cols) */}
+          <div className="lg:col-span-7 flex flex-col md:flex-row gap-4 lg:gap-6 min-w-0 overflow-hidden">
             {/* Thumbnails */}
             <div className="flex md:flex-col gap-4 order-2 md:order-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
               <button 
@@ -73,7 +96,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             </div>
 
             {/* Main Image */}
-            <div className="relative flex-1 aspect-[3/4] bg-[#f9f9f9] order-1 md:order-2">
+            <div className="relative flex-1 aspect-[3/4] bg-[#f9f9f9] order-1 md:order-2 w-full max-w-full overflow-hidden">
               <Image 
                 src={activeImage === 'front' ? variant.frontImage : variant.backImage}
                 alt={product.name}
@@ -84,8 +107,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             </div>
           </div>
 
-          {/* Right Column: Product Info */}
-          <div className="w-full lg:w-[450px] flex flex-col pt-4 lg:pt-10">
+          {/* Right Column: Product Info (fixed to 5 cols) */}
+          <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-10 min-w-0">
             <h1 className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-wol-graphite mb-2">
               {product.name}
             </h1>
@@ -176,17 +199,50 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               Adicionar ao Carrinho
             </Button>
 
-            {/* Description & Details */}
-            <div className="mt-12 space-y-8">
+            {/* Reviews Section */}
+            <div className="mt-12 space-y-8 border-t border-wol-graphite/10 pt-12">
               <div>
-                <h4 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-3">
-                  Descrição
+                <h4 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-6 flex items-center gap-2">
+                  <Star size={18} /> Avaliações do Produto
                 </h4>
-                <p className="text-wol-graphite/70 text-sm leading-relaxed">
-                  {product.description}
-                </p>
+                
+                {isLoadingReviews ? (
+                  <p className="text-xs text-wol-graphite/50 uppercase tracking-widest">Carregando avaliações...</p>
+                ) : reviews.length === 0 ? (
+                  <div className="border border-dashed border-wol-graphite/20 p-8 text-center">
+                    <p className="text-xs text-wol-graphite/50 uppercase tracking-widest">Este produto ainda não possui avaliações.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div key={review.id} className="border border-wol-graphite/10 p-6 hover:border-wol-graphite/30 transition-colors">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-[#f1f1f1] rounded-full flex items-center justify-center text-wol-graphite/40">
+                              <User size={16} />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold uppercase tracking-widest text-wol-graphite">{review.users?.name || 'Cliente WOL'}</p>
+                              <p className="text-[10px] text-wol-graphite/40">{format(new Date(review.created_at), 'dd/MM/yyyy')}</p>
+                            </div>
+                          </div>
+                          <div className="flex text-yellow-400 gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star key={star} size={14} weight={star <= review.rating ? 'fill' : 'regular'} className={star <= review.rating ? 'text-yellow-400' : 'text-wol-graphite/20'} />
+                            ))}
+                          </div>
+                        </div>
+                        {review.comment && (
+                          <p className="text-sm text-wol-graphite/80 leading-relaxed pl-11">{review.comment}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
+
+
 
           </div>
         </div>

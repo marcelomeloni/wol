@@ -169,7 +169,7 @@ export default function MinhaContaEnderecos() {
           <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2 flex items-center gap-2">
             <MapPin size={20} /> EndereÃ§os
           </h2>
-          <p className="text-xs text-wol-graphite/60">Gerencie seus endereÃ§os de entrega.</p>
+          
         </div>
         {!showAddForm && (
           <button 

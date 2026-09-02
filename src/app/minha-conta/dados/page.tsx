@@ -81,7 +81,7 @@ export default function MinhaContaDados() {
         <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2 flex items-center gap-2">
           <User size={20} /> Meus Dados
         </h2>
-        <p className="text-xs text-wol-graphite/60">Atualize suas informaÃ§Ãµes pessoais e credenciais.</p>
+        
       </div>
 
       <form onSubmit={handleSave} className="max-w-2xl space-y-6">

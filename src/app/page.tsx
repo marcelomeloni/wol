@@ -28,8 +28,6 @@ export default function Home() {
         </Container>
       </section>
 
-
-
       {/* Featured Products Section (Vitrine) */}
       <section className="bg-[#f9f9f9] py-16 md:py-24">
         <Container>
@@ -47,22 +45,22 @@ export default function Home() {
         </Container>
       </section>
 
-      {/* Brand Essence Section ('NOSSA ESSÊNCIA') */}
+      {/* Brand Essence Section */}
       <section className="bg-wol-white py-16 md:py-24">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Image Placeholder */}
+            {/* Image */}
             <div className="order-2 lg:order-1 h-[450px] md:h-[550px] bg-[#f9f9f9] relative flex items-center justify-center overflow-hidden">
               <Image 
-                src="/homeimage.png"
+                src="/homeimage.jpg"
                 alt="WOL Lifestyle"
                 fill
                 priority
+                unoptimized
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-[1.5s] hover:scale-105"
               />
-              <div className="relative z-10 w-32 h-32 md:w-48 md:h-48 rounded-full flex items-center justify-center bg-wol-graphite shadow-2xl">
-                <span className="font-display text-3xl md:text-5xl text-wol-white pt-2 md:pt-3">WOL</span>
-              </div>
+
             </div>
 
             {/* Text Content */}

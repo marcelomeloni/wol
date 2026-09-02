@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { ProductCard } from '@/components/ui/ProductCard';
@@ -16,9 +16,8 @@ export default function MinhaContaFavoritos() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="border-b border-wol-graphite/10 pb-4">
+      <div className="border-b border-wol-graphite/10 pb-4 mb-8">
         <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2">Meus Favoritos</h2>
-        <p className="text-xs text-wol-graphite/60">Sua lista de desejos (Wishlist).</p>
       </div>
 
       {favoriteProducts.length === 0 ? (
