@@ -1,8 +1,4 @@
-// Configuração do Mercado Pago para o Checkout Transparente.
-//
-// O SDK de Bricks roda 100% no browser: os dados do cartão nunca passam pelo
-// nosso servidor (o Brick gera um token single-use). O backend recebe apenas
-// esse token e cobra via Core API.
+// Checkout Transparente: o Brick roda no browser e envia apenas o token single-use ao backend.
 
 export const MP_PUBLIC_KEY = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY ?? '';
 

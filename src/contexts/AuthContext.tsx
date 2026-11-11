@@ -75,7 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // Check if token exists on mount
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       queueMicrotask(() => fetchMe(token));
@@ -118,7 +117,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   };
-
   const register = async (data: RegisterData) => {
     try {
       const cpfNumeros = data.cpf.replace(/\D/g, '');

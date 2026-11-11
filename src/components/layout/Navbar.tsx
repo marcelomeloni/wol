@@ -38,12 +38,10 @@ export function Navbar() {
         className="fixed left-0 right-0 top-0 z-40 h-16 w-full bg-wol-white border-b border-wol-graphite/10 transition-all duration-300 md:h-20"
       >
         <Container className="flex h-full items-center justify-between">
-          {/* LEFT: Logo */}
           <Link href="/" className="font-display text-3xl md:text-4xl tracking-widest text-wol-graphite">
             WOL
           </Link>
 
-          {/* CENTER: Desktop Links */}
           <div className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (pathname.startsWith(link.href) && link.href !== "/");
@@ -64,7 +62,6 @@ export function Navbar() {
             })}
           </div>
 
-          {/* RIGHT: Actions */}
           <div className="flex items-center gap-4">
             <Link
               href={isAuthenticated ? "/minha-conta/pedidos" : "/login"}
@@ -90,7 +87,6 @@ export function Navbar() {
         </Container>
       </nav>
 
-      {/* MOBILE OVERLAY */}
       <div
         className={cn(
           "fixed inset-0 z-50 flex flex-col bg-wol-white transition-transform duration-300 ease-in-out md:hidden",
@@ -128,8 +124,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* CART DRAWER */}
-      {/* Backdrop */}
       <div 
         className={cn(
           "fixed inset-0 bg-wol-graphite/40 backdrop-blur-sm z-50 transition-opacity duration-300",
@@ -137,14 +131,12 @@ export function Navbar() {
         )} 
         onClick={toggleCart}
       />
-      {/* Drawer */}
       <div 
         className={cn(
           "fixed top-0 right-0 bottom-0 w-[90%] max-w-md bg-wol-white z-50 shadow-2xl flex flex-col transition-transform duration-500 ease-in-out",
           isCartOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-wol-graphite/10 bg-wol-white">
           <h2 className="font-sans font-bold uppercase tracking-widest text-lg text-wol-graphite">Seu Carrinho</h2>
           <button onClick={toggleCart} className="text-wol-graphite hover:opacity-50 transition-opacity">
@@ -152,7 +144,6 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Content */}
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4 bg-[#f9f9f9]">
             <Bag size={64} className="text-wol-graphite/20 mb-4" />
@@ -193,7 +184,6 @@ export function Navbar() {
               ))}
             </div>
             
-            {/* Footer */}
             <div className="p-6 border-t border-wol-graphite/10 bg-wol-white">
               <div className="flex justify-between items-center mb-6">
                 <span className="font-bold uppercase tracking-widest text-wol-graphite text-sm">Subtotal</span>

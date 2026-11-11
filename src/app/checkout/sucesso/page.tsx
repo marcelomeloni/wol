@@ -105,7 +105,6 @@ function SuccessContent() {
     <Container className="pt-32 pb-24 min-h-[80vh]">
       <div className="max-w-2xl mx-auto space-y-10">
         
-        {/* Header com check animado */}
         <div className="text-center space-y-6">
           <div className="flex justify-center">
             <div className="relative">
@@ -143,7 +142,6 @@ function SuccessContent() {
           )}
         </div>
 
-        {/* Número do Pedido */}
         {orderId && (
           <div className="bg-[#f9f9f9] border border-wol-graphite/10 p-6 flex items-center justify-between">
             <div>
@@ -167,7 +165,6 @@ function SuccessContent() {
           </div>
         )}
 
-        {/* Resumo do Pedido */}
         {isLoading ? (
           <div className="bg-[#f9f9f9] border border-wol-graphite/10 p-8 text-center">
             <p className="text-sm text-wol-graphite/40 uppercase tracking-widest animate-pulse">Carregando resumo...</p>
@@ -178,7 +175,6 @@ function SuccessContent() {
               Resumo da Compra
             </h2>
 
-            {/* Itens */}
             <div className="space-y-4">
               {order.order_items.map((item: OrderItem) => (
                 <div key={item.id} className="flex justify-between items-center py-2 border-b border-wol-graphite/5 last:border-0">
@@ -197,7 +193,6 @@ function SuccessContent() {
               ))}
             </div>
 
-            {/* Totais */}
             <div className="space-y-2 pt-4 border-t border-wol-graphite/10">
               <div className="flex justify-between text-sm">
                 <span className="text-wol-graphite/60">Subtotal</span>
@@ -222,7 +217,6 @@ function SuccessContent() {
               </div>
             </div>
 
-            {/* Método e Status de Pagamento */}
             <div className="pt-4 border-t border-wol-graphite/10 space-y-2">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-wol-graphite/60">Pagamento</span>
@@ -240,7 +234,6 @@ function SuccessContent() {
           </div>
         ) : null}
 
-        {/* Botões */}
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <Link 
             href="/minha-conta/pedidos"

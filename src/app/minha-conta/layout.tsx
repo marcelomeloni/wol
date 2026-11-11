@@ -46,7 +46,6 @@ export default function MinhaContaLayout({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
-          {/* Sidebar Menu */}
           <aside className="w-full lg:w-64 shrink-0">
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => {
@@ -89,7 +88,6 @@ export default function MinhaContaLayout({
             </nav>
           </aside>
 
-          {/* Main Content Area */}
           <main className="flex-1 bg-wol-white p-8 md:p-12 shadow-sm border border-wol-graphite/5">
             {children}
           </main>

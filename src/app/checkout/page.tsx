@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
@@ -68,11 +68,9 @@ export default function CheckoutPage() {
   const cpf = cpfOverride ?? (user?.cpf ? formatCpf(user.cpf) : '');
   const phone = phoneOverride ?? (user?.phone ? formatPhone(user.phone) : '');
 
-  // Endereços Salvos
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
-  // Estados de Endereço Novo e CEP
   const [cep, setCep] = useState('');
   const [isFetchingCep, setIsFetchingCep] = useState(false);
   const [addressData, setAddressData] = useState({
@@ -82,37 +80,31 @@ export default function CheckoutPage() {
     estado: ''
   });
 
-  // Estados de Cupom
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
-  // Frete
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null);
   const [isQuotingShipping, setIsQuotingShipping] = useState(false);
 
-  // Etapas do checkout
   const [step, setStep] = useState<CheckoutStep>('form');
   const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const [orderTotal, setOrderTotal] = useState(0);
 
-  // Pagamento
   const [pixQrBase64, setPixQrBase64] = useState<string | null>(null);
   const [pixCopyPaste, setPixCopyPaste] = useState<string | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isCardBrickReady, setIsCardBrickReady] = useState(false);
 
-  // Redirect to products if cart is empty (but NOT after successful checkout)
   useEffect(() => {
     if (items.length === 0 && !isProcessing && step === 'form') {
       router.push('/produtos');
     }
   }, [items, router, isProcessing, step]);
 
-  // Carrega os endereços salvos do usuário.
   useEffect(() => {
     if (user) {
       apiFetch<SavedAddress[]>('/addresses')
@@ -129,7 +121,6 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // CEP de destino (endereço salvo ou novo)
   const destinationCep = useMemo(() => {
     if (selectedAddressId && selectedAddressId !== 'new') {
       const addr = savedAddresses.find((a) => a.id === selectedAddressId);
@@ -138,13 +129,11 @@ export default function CheckoutPage() {
     return cep.replace(/\D/g, '');
   }, [selectedAddressId, savedAddresses, cep]);
 
-  // Itens para cotação de frete
   const shippingItems = useMemo(
     () => items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
     [items],
   );
 
-  // Cotação de frete sempre que o CEP de destino ou o carrinho mudam.
   useEffect(() => {
     let cancelled = false;
 
@@ -237,7 +226,6 @@ export default function CheckoutPage() {
     return data.id;
   }, [selectedAddressId, savedAddresses, cep, addressData, appliedCoupon, paymentMethod, selectedShipping, items]);
 
-  // Gera o PIX para o pedido criado.
   const generatePix = useCallback(async (orderId: string) => {
     setIsPaying(true);
     setPaymentError(null);
@@ -442,7 +430,6 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Divisória */}
               <div className="w-full h-px bg-wol-graphite/10 my-8"></div>
 
               {/* Seção: Endereço */}
@@ -620,13 +607,6 @@ export default function CheckoutPage() {
                 2. Pagamento
               </h2>
 
-              {!isMercadoPagoEnabled && (
-                <div className="bg-[#f1f1f1] p-4 text-xs text-wol-graphite/70 uppercase tracking-wider">
-                  Pagamento temporariamente indisponível. Configure a chave publica do Mercado Pago
-                  (NEXT_PUBLIC_MP_PUBLIC_KEY) para habilitar o checkout.
-                </div>
-              )}
-
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -676,11 +656,10 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* Botão de Finalizar Compra movido para a Esquerda */}
               <div className="pt-8">
                 <button 
                   type="submit" 
-                  disabled={isProcessing || !selectedShipping || !isMercadoPagoEnabled}
+                  disabled={isProcessing || !selectedShipping || (!isMercadoPagoEnabled && !isMockPayment)}
                   className="w-full h-14 bg-wol-graphite text-wol-white font-bold uppercase tracking-widest hover:bg-wol-black transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isProcessing ? 'Processando...' : (
@@ -766,7 +745,6 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* Totals */}
               <div className="space-y-3 pt-6 border-t border-wol-graphite/10">
                 <div className="flex justify-between text-sm">
                   <span className="text-wol-graphite/60">Subtotal</span>

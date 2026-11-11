@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { ArrowLeft, Package, Receipt, CircleNotch, Truck } from '@phosphor-icons/react';
@@ -68,18 +68,15 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
 
   const getStatusText = (status: string) => {
     const statusMap: Record<string, string> = {
-      // Order Status
       'PENDING': 'PENDENTE',
       'PAYMENT_APPROVED': 'PAGO',
       'PREPARING': 'EM SEPARAÇÃO',
       'SHIPPED': 'ENVIADO',
       'DELIVERED': 'ENTREGUE',
       'CANCELED': 'CANCELADO',
-      // Payment Status
       'WAITING': 'AGUARDANDO PAGAMENTO',
       'PAID': 'PAGAMENTO APROVADO',
       'REFUNDED': 'REEMBOLSADO',
-      // Fallbacks just in case
       'pending': 'PENDENTE',
       'paid': 'PAGO',
       'processing': 'EM SEPARAÇÃO',
@@ -112,7 +109,6 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* Header */}
       <div className="border-b border-wol-graphite/10 pb-4">
         <Link 
           href="/minha-conta/pedidos" 
@@ -137,7 +133,6 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Items */}
         <div className="lg:col-span-2 space-y-6">
           <div className="border border-wol-graphite/10 p-6">
             <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite mb-6 flex items-center gap-2">
@@ -166,10 +161,8 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
 
-        {/* Right Column - Info */}
         <div className="space-y-6">
           
-          {/* Rastreio */}
           {order.tracking_code && (
             <div className="border border-wol-graphite p-6 bg-wol-graphite text-wol-white">
               <h3 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -187,7 +180,6 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
             </div>
           )}
 
-          {/* Resumo Financeiro */}
           <div className="border border-wol-graphite/10 p-6">
             <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite mb-6 flex items-center gap-2">
               <Receipt size={16} /> Resumo

@@ -43,7 +43,6 @@ export default function ContatoPage() {
     <div className="min-h-screen bg-wol-white pt-12 pb-24">
       <Container>
         
-        {/* Header Section */}
         <div className="flex flex-col items-center text-center space-y-6 mb-20 mt-10">
           <div className="w-12 h-[1px] bg-wol-pink" />
           <h1 className="font-display text-5xl md:text-7xl text-wol-graphite tracking-tight uppercase">
@@ -53,7 +52,6 @@ export default function ContatoPage() {
 
         <div className="max-w-2xl mx-auto flex flex-col gap-16">
           
-          {/* Informações de Contato */}
           <div className="space-y-12">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-8 border-b border-wol-graphite/10 pb-4">
@@ -86,7 +84,6 @@ export default function ContatoPage() {
             </div>
           </div>
 
-          {/* Formulário de Contato */}
           <div>
             <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-8 border-b border-wol-graphite/10 pb-4">
               Envie uma Mensagem

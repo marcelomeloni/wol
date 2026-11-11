@@ -1,8 +1,4 @@
-// Cliente HTTP central da WOL.
-// Toda comunicação com o backend Express deve passar por aqui.
-//
-// NEXT_PUBLIC_API_URL é a base (ex: https://wolbackend.vercel.app/api).
-// O token de sessão é lido de localStorage('@wol:token') no cliente.
+// Cliente HTTP central; toda chamada ao backend Express passa por aqui.
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ||

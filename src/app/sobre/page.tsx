@@ -1,4 +1,4 @@
-﻿import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/Container';
 import Image from 'next/image';
 
 export default function SobrePage() {
@@ -6,7 +6,6 @@ export default function SobrePage() {
     <div className="min-h-screen bg-wol-white pt-12 pb-24">
       <Container>
         
-        {/* Header Section */}
         <div className="flex flex-col items-center text-center space-y-6 mb-20 mt-10">
           <div className="w-12 h-[1px] bg-wol-pink" />
           <h1 className="font-display text-5xl md:text-7xl text-wol-graphite tracking-tight uppercase">
@@ -18,7 +17,6 @@ export default function SobrePage() {
           </p>
         </div>
 
-        {/* Content Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-24">
           <div className="space-y-8">
             <h2 className="text-2xl font-bold uppercase tracking-widest text-wol-graphite">
@@ -71,7 +69,6 @@ export default function SobrePage() {
             </div>
           </div>
 
-          {/* Image */}
           <div className="relative h-[500px] md:h-[650px] w-full bg-[#f9f9f9] overflow-hidden">
             <Image 
               src="/sobreimage.jpg" 

@@ -43,14 +43,12 @@ export function ProductCard({ product, className, showColorSelector = true }: Pr
 
   return (
     <div className={cn("group flex flex-col gap-5", className)}>
-      {/* Imagem do Produto */}
       <Link
         href={`/produtos/${product.slug}`}
         className={cn(
           "relative block aspect-[3/4] w-full overflow-hidden rounded-2xl transition-colors duration-500 bg-[#f9f9f9]"
         )}
       >
-        {/* Botão de Favorito */}
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -68,7 +66,6 @@ export function ProductCard({ product, className, showColorSelector = true }: Pr
           <Heart size={18} weight={favorited ? 'fill' : 'regular'} className={favorited ? 'text-wol-pink' : ''} />
         </button>
 
-        {/* Frente */}
         {variant?.frontImage && (
           <div className="absolute inset-0 z-10 transition-opacity duration-700 ease-in-out group-hover:opacity-0 p-4">
             <Image
@@ -81,7 +78,6 @@ export function ProductCard({ product, className, showColorSelector = true }: Pr
           </div>
         )}
 
-        {/* Verso */}
         {variant?.backImage && (
           <div className="absolute inset-0 opacity-0 transition-opacity duration-700 ease-in-out group-hover:opacity-100 p-4">
             <Image
@@ -94,7 +90,6 @@ export function ProductCard({ product, className, showColorSelector = true }: Pr
           </div>
         )}
 
-        {/* CTA de Compra (Fixo mobile, revela no hover desktop) */}
         <div className="absolute bottom-4 left-4 right-4 z-20 flex justify-center translate-y-2 opacity-100 md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 ease-out">
           <span className={cn(
             "w-full text-center bg-wol-pink text-wol-graphite font-sans font-bold uppercase text-sm tracking-widest py-3 transition-colors border border-transparent",
@@ -105,9 +100,7 @@ export function ProductCard({ product, className, showColorSelector = true }: Pr
         </div>
       </Link>
 
-      {/* Informações do Produto */}
       <div className="flex flex-col items-center text-center gap-3">
-        {/* Nome e Preço */}
         <div className="flex flex-col items-center gap-1">
           <Link href={`/produtos/${product.slug}`}>
             <h3 className="font-sans font-bold text-xl md:text-2xl uppercase tracking-wider text-wol-graphite hover:text-wol-graphite/60 transition-colors">
@@ -119,7 +112,6 @@ export function ProductCard({ product, className, showColorSelector = true }: Pr
           </p>
         </div>
 
-        {/* Seletor de Cores */}
         {showColorSelector && colors.length > 1 && (
           <div className="flex items-center justify-center gap-3 pt-1">
             {colors.map((color) => (

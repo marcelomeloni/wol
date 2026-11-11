@@ -1,5 +1,4 @@
-// Espelha exatamente o payload de products.service.ts (mapProductToFrontend).
-// O backend manda 1 variante por combinação cor × tamanho (product_variants).
+// Espelha o payload de products.service.ts (1 variante por cor × tamanho).
 
 export interface ProductVariant {
   id?: string | null; // product_variants.id (para envio ao backend)

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
-  id: string; // Unique ID (variantId)
+  id: string;
   variantId?: string; // product_variants.id (usado pelo backend)
   productId: string;
   slug: string;
@@ -34,7 +34,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load from local storage on mount
   useEffect(() => {
     const storedCart = localStorage.getItem('@wol:cart');
     if (storedCart) {
@@ -48,7 +47,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     queueMicrotask(() => setIsLoaded(true));
   }, []);
 
-  // Save to local storage whenever items change
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('@wol:cart', JSON.stringify(items));
@@ -63,17 +61,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existingItemIndex = prevItems.findIndex(item => item.id === uniqueId);
       
       if (existingItemIndex >= 0) {
-        // Item exists, update quantity
         const updatedItems = [...prevItems];
         updatedItems[existingItemIndex].quantity += newItem.quantity;
         return updatedItems;
       }
       
-      // New item
       return [...prevItems, { ...newItem, id: uniqueId }];
     });
     
-    // Auto-open cart when adding an item
     setIsCartOpen(true);
   };
 

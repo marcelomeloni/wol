@@ -23,7 +23,6 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-wol-white">
-      {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden flex flex-col items-center justify-center">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop')] opacity-[0.03] bg-cover bg-center" />
         
@@ -43,7 +42,6 @@ export default async function Home() {
         </Container>
       </section>
 
-      {/* Featured Products Section (Vitrine) */}
       <section className="bg-[#f9f9f9] py-16 md:py-24">
         <Container>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -60,11 +58,9 @@ export default async function Home() {
         </Container>
       </section>
 
-      {/* Brand Essence Section */}
       <section className="bg-wol-white py-16 md:py-24">
         <Container>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            {/* Image */}
             <div className="order-2 lg:order-1 h-[450px] md:h-[550px] bg-[#f9f9f9] relative flex items-center justify-center overflow-hidden">
               <Image 
                 src="/homeimage.jpg"
@@ -78,7 +74,6 @@ export default async function Home() {
 
             </div>
 
-            {/* Text Content */}
             <div className="order-1 lg:order-2 flex flex-col space-y-8">
               <div className="w-12 h-px bg-wol-pink" />
               <h2 className="text-3xl md:text-4xl font-bold uppercase tracking-tight text-wol-graphite">
@@ -107,7 +102,6 @@ export default async function Home() {
         </Container>
       </section>
 
-      {/* Newsletter Section */}
       <section className="bg-[#f9f9f9] border-t border-wol-graphite/5 py-20">
         <Container>
           <div className="max-w-xl mx-auto text-center space-y-8">

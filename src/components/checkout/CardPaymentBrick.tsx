@@ -4,7 +4,6 @@ import { useEffect, useMemo, useCallback } from 'react';
 import { CardPayment, initMercadoPago } from '@mercadopago/sdk-react';
 import { MP_PUBLIC_KEY } from '@/lib/mercadopago';
 
-// Tipos devolvidos pelo Brick do Mercado Pago.
 interface CardPaymentSubmitData {
   token?: string;
   installments?: number;

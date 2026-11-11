@@ -39,7 +39,6 @@ export default function MinhaContaEnderecos() {
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const cep = e.target.value.replace(/\D/g, '');
     
-    // Mask CEP as 00000-000
     let maskedCep = cep;
     if (cep.length > 5) {
       maskedCep = `${cep.slice(0, 5)}-${cep.slice(5, 8)}`;
@@ -56,7 +55,6 @@ export default function MinhaContaEnderecos() {
           setNeighborhood(data.bairro || '');
           setCity(data.localidade || '');
           setState(data.uf || '');
-          // Optamos por não dar auto-focus via ref por simplicidade, mas os dados já preenchem
         } else {
           toast.error('CEP não encontrado');
         }
@@ -150,7 +148,7 @@ export default function MinhaContaEnderecos() {
       const token = localStorage.getItem('@wol:token');
       const res = await fetch(`${API_URL}/addresses`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },

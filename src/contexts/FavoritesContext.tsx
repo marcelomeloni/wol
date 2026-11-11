@@ -82,7 +82,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
     const exists = favorites.some((p) => p.id === product.id);
 
-    // Atualização otimista
     const next = exists
       ? favorites.filter((p) => p.id !== product.id)
       : [...favorites, product];
@@ -98,7 +97,6 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         toast.success('Produto adicionado aos favoritos!');
       }
     } catch {
-      // Reverte em caso de erro
       setFavorites(favorites);
       writeLocal(favorites);
       toast.error('Não foi possível atualizar seus favoritos.');

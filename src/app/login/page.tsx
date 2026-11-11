@@ -12,7 +12,6 @@ function LoginContent() {
   const redirectUrl = searchParams.get('redirectUrl') || '/minha-conta/pedidos';
   const [mode, setMode] = useState<'login' | 'register'>('login');
   
-  // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -43,7 +42,7 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setFieldErrors({}); // limpa erros anteriores
+    setFieldErrors({});
     
     try {
       if (mode === 'login') {
@@ -52,7 +51,6 @@ function LoginContent() {
         const rawCpf = cpf.replace(/\D/g, '');
         const rawPhone = phone.replace(/\D/g, '');
         await register({ name, email, password, cpf: rawCpf, phone: rawPhone });
-        // Se registrou com sucesso, muda para login
         setMode('login');
         setPassword('');
       }
@@ -69,7 +67,6 @@ function LoginContent() {
             errorsMap[String(key)] = err.message ?? '';
           }
         });
-        setFieldErrors(errorsMap);
       }
     } finally {
       setIsSubmitting(false);
@@ -79,10 +76,8 @@ function LoginContent() {
   return (
     <div className="min-h-screen flex bg-wol-white">
       
-      {/* LEFT: Formulário (Login / Registro) */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24 lg:px-32 relative py-20">
         
-        {/* Voltar */}
         <Link 
           href="/" 
           className="absolute top-8 left-8 sm:left-16 text-wol-graphite flex items-center gap-2 font-bold uppercase tracking-widest text-xs hover:opacity-50 transition-opacity"
@@ -211,7 +206,6 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* RIGHT: Imagem */}
       <div className="hidden lg:flex w-1/2 bg-[#111111] relative items-center justify-center overflow-hidden">
         <Image 
           src="/loginimage.jpg" 

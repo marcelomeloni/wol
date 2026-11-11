@@ -45,7 +45,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
       const defaultColor = colors.find((c) => c.colorName === 'Branco') ?? colors[0];
       setActiveColorId(defaultColor?.id ?? null);
 
-      // Troca de produto: tamanhos e imagens anteriores não valem mais.
       setSelectedSize(null);
       setActiveImage('front');
       setIsLoadingProduct(false);
@@ -102,7 +101,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   return (
     <div className="min-h-screen bg-wol-white pt-24 md:pt-32 pb-24">
       <Container>
-        {/* Breadcrumbs */}
         <div className="mb-8 text-sm font-medium text-wol-graphite/50 tracking-wider uppercase">
           <Link href="/" className="hover:text-wol-pink transition-colors">Início</Link>
           <span className="mx-2">/</span>
@@ -113,9 +111,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
-          {/* Left Column: Image Gallery */}
           <div className="lg:col-span-7 flex flex-col md:flex-row gap-4 lg:gap-6 min-w-0 overflow-hidden">
-            {/* Thumbnails */}
             <div className="flex md:flex-col gap-4 order-2 md:order-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
               <button
                 onClick={() => setActiveImage('front')}
@@ -137,7 +133,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               </button>
             </div>
 
-            {/* Main Image */}
             <div className="relative flex-1 aspect-[3/4] bg-[#f9f9f9] order-1 md:order-2 w-full max-w-full overflow-hidden">
               {(activeImage === 'front' ? imageVariant?.frontImage : imageVariant?.backImage) && (
                 <Image
@@ -151,7 +146,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
             </div>
           </div>
 
-          {/* Right Column: Product Info */}
           <div className="lg:col-span-5 flex flex-col pt-4 lg:pt-10 min-w-0">
             <h1 className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-wol-graphite mb-2">
               {product.name}
@@ -166,7 +160,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
 
             <div className="w-full h-px bg-wol-graphite/10 mb-8" />
 
-            {/* Color Selector */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-sm font-bold uppercase tracking-widest text-wol-graphite">
@@ -205,7 +198,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               </div>
             </div>
 
-            {/* Size Selector */}
             <div className="mb-10">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-sm font-bold uppercase tracking-widest text-wol-graphite">
@@ -251,7 +243,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                   return;
                 }
 
-                // Variante exata (cor + tamanho) resolvida no render.
                 if (!selectedVariant) {
                   toast.error('Este tamanho não está disponível nesta cor.');
                   return;
@@ -280,7 +271,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               Adicionar ao Carrinho
             </Button>
 
-            {/* Reviews Section */}
             <div className="mt-12 space-y-8 border-t border-wol-graphite/10 pt-12">
               <div>
                 <h4 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-6 flex items-center gap-2">

@@ -25,10 +25,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 }
 
-// --- Helpers do contrato de produto ---
-// O backend manda 1 variante por combinação cor × tamanho (product_variants).
-// Cores e tamanhos próprios vêm de product.colors / product.sizes; o resto é
-// deduplicado aqui para o seletor nunca renderizar entradas repetidas.
+// Helpers do contrato: 1 variante por cor × tamanho; deduplica cores/tamanhos para os seletores.
 
 const DEFAULT_SIZES = ['P', 'M', 'G', 'GG'];
 
