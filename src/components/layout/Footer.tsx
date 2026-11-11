@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { InstagramLogo, EnvelopeSimple } from "@phosphor-icons/react/dist/ssr";
+import { InstagramLogo } from "@phosphor-icons/react/dist/ssr";
 import { Container } from "@/components/ui/Container";
 
 export function Footer() {

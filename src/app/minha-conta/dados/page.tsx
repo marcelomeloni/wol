@@ -1,23 +1,17 @@
-﻿'use client';
+'use client';
 
 import { User, CircleNotch } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { API_URL } from '@/lib/api';
+import { useState } from 'react';
 
 export default function MinhaContaDados() {
   const { user } = useAuth();
   
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [nameOverride, setNameOverride] = useState<string | null>(null);
+  const [phoneOverride, setPhoneOverride] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name || '');
-      setPhone(user.phone || '');
-    }
-  }, [user]);
 
   const formatCpf = (value: string) => {
     if (!value) return '';
@@ -38,6 +32,9 @@ export default function MinhaContaDados() {
     return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
   };
 
+  const name = nameOverride ?? user?.name ?? '';
+  const phone = phoneOverride ?? (user?.phone ? formatPhone(user.phone) : '');
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -46,7 +43,7 @@ export default function MinhaContaDados() {
       const token = localStorage.getItem('@wol:token');
       const rawPhone = phone.replace(/\D/g, '');
       
-      const res = await fetch('https://wolbackend.vercel.app/api/auth/me', {
+      const res = await fetch(`${API_URL}/auth/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -60,8 +57,8 @@ export default function MinhaContaDados() {
       }
 
       toast.success('Dados atualizados com sucesso!');
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao atualizar dados');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao atualizar dados');
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +89,7 @@ export default function MinhaContaDados() {
               type="text" 
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setNameOverride(e.target.value)}
               className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm" 
             />
           </div>
@@ -105,7 +102,7 @@ export default function MinhaContaDados() {
               disabled
               className="w-full border border-wol-graphite/10 bg-[#f9f9f9] text-wol-graphite/50 h-12 px-4 outline-none text-sm cursor-not-allowed" 
             />
-            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O e-mail nÃ£o pode ser alterado.</span>
+            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O e-mail não pode ser alterado.</span>
           </div>
 
           <div>
@@ -116,7 +113,7 @@ export default function MinhaContaDados() {
               disabled
               className="w-full border border-wol-graphite/10 bg-[#f9f9f9] text-wol-graphite/50 h-12 px-4 outline-none text-sm cursor-not-allowed" 
             />
-            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O CPF nÃ£o pode ser alterado apÃ³s o cadastro.</span>
+            <span className="text-[10px] text-wol-graphite/40 mt-1 block">O CPF não pode ser alterado após o cadastro.</span>
           </div>
 
           <div>
@@ -125,7 +122,7 @@ export default function MinhaContaDados() {
               type="tel" 
               required
               value={phone}
-              onChange={(e) => setPhone(formatPhone(e.target.value))}
+              onChange={(e) => setPhoneOverride(formatPhone(e.target.value))}
               className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm" 
             />
           </div>
@@ -143,7 +140,7 @@ export default function MinhaContaDados() {
                 Salvando...
               </>
             ) : (
-              'Salvar AlteraÃ§Ãµes'
+              'Salvar Alterações'
             )}
           </button>
         </div>

@@ -1,13 +1,42 @@
 'use client';
 
+import { useState } from 'react';
 import { Container } from '@/components/ui/Container';
-import { EnvelopeSimple, WhatsappLogo, InstagramLogo } from '@phosphor-icons/react';
+import { WhatsappLogo, InstagramLogo, CircleNotch } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
+import { apiFetch } from '@/lib/api';
 
 export default function ContatoPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success('Mensagem enviada com sucesso! Retornaremos em breve.');
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    setIsSending(true);
+    try {
+      await apiFetch('/contact', {
+        method: 'POST',
+        auth: false,
+        body: {
+          name: formData.get('name'),
+          email: formData.get('email'),
+          subject: formData.get('subject'),
+          message: formData.get('message'),
+        },
+      });
+      form.reset();
+      toast.success('Mensagem enviada com sucesso! Retornaremos em breve.');
+    } catch (err) {
+      toast.error(
+        err instanceof Error && err.message
+          ? err.message
+          : 'Não foi possível enviar a mensagem.',
+      );
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -66,17 +95,17 @@ export default function ContatoPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-wol-graphite/60 mb-2">Nome Completo</label>
-                  <input type="text" required className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm" />
+                  <input type="text" name="name" required className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm" />
                 </div>
                 
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-wol-graphite/60 mb-2">E-mail</label>
-                  <input type="email" required className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm" />
+                  <input type="email" name="email" required className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm" />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-wol-graphite/60 mb-2">Assunto</label>
-                  <select required className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm appearance-none">
+                  <select name="subject" required className="w-full border border-wol-graphite/20 bg-transparent h-12 px-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm appearance-none">
                     <option value="">Selecione o assunto</option>
                     <option value="Dúvida">Dúvida sobre Produto</option>
                     <option value="Pedido">Meu Pedido</option>
@@ -88,12 +117,18 @@ export default function ContatoPage() {
 
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-wol-graphite/60 mb-2">Mensagem</label>
-                  <textarea required rows={5} className="w-full border border-wol-graphite/20 bg-transparent p-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm resize-none"></textarea>
+                  <textarea name="message" required rows={5} className="w-full border border-wol-graphite/20 bg-transparent p-4 outline-none focus:border-wol-graphite transition-colors text-wol-graphite text-sm resize-none"></textarea>
                 </div>
               </div>
 
-              <button type="submit" className="w-full bg-wol-graphite text-wol-white font-bold uppercase tracking-widest py-4 hover:bg-wol-black transition-colors text-xs">
-                Enviar Mensagem
+              <button type="submit" disabled={isSending} className="w-full bg-wol-graphite text-wol-white font-bold uppercase tracking-widest py-4 hover:bg-wol-black transition-colors text-xs disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                {isSending ? (
+                  <>
+                    <CircleNotch size={18} className="animate-spin" /> Enviando...
+                  </>
+                ) : (
+                  'Enviar Mensagem'
+                )}
               </button>
             </form>
           </div>

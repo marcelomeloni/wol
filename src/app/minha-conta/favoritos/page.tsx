@@ -1,18 +1,31 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { ProductCard } from '@/components/ui/ProductCard';
-import { HeartBreak } from '@phosphor-icons/react';
+import { HeartBreak, CircleNotch } from '@phosphor-icons/react';
 import Link from 'next/link';
-
-// Mock de produtos (precisamos do array original para casar os dados)
-import { products } from '@/lib/data';
+import { getProducts } from '@/lib/products';
+import type { Product } from '@/types';
 
 export default function MinhaContaFavoritos() {
   const { favorites } = useFavorites();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filtramos os produtos completos baseado nos IDs salvos nos favoritos
-  const favoriteProducts = products.filter(p => favorites.some(f => f.id === p.id));
+  useEffect(() => {
+    (async () => {
+      try {
+        setProducts(await getProducts());
+      } catch {
+        setProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
+
+  const favoriteProducts = products.filter((p) => favorites.some((f) => f.id === p.id));
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -20,15 +33,19 @@ export default function MinhaContaFavoritos() {
         <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2">Meus Favoritos</h2>
       </div>
 
-      {favoriteProducts.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center py-24">
+          <CircleNotch size={32} className="animate-spin text-wol-graphite/40" />
+        </div>
+      ) : favoriteProducts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center border border-wol-graphite/10 bg-[#f9f9f9]">
           <HeartBreak size={48} className="text-wol-graphite/20 mb-4" />
           <h3 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2">Lista Vazia</h3>
           <p className="text-xs text-wol-graphite/60 mb-6 max-w-sm">
-            VocÃª ainda nÃ£o adicionou nenhuma peÃ§a aos seus favoritos. Navegue pelos drops e salve suas favoritas!
+            Você ainda não adicionou nenhuma peça aos seus favoritos. Navegue pelos drops e salve suas favoritas!
           </p>
           <Link href="/produtos" className="bg-wol-graphite text-wol-white px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-wol-black transition-colors">
-            Explorar ColeÃ§Ã£o
+            Explorar Coleção
           </Link>
         </div>
       ) : (
@@ -41,4 +58,3 @@ export default function MinhaContaFavoritos() {
     </div>
   );
 }
-

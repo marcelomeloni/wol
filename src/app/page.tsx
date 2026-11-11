@@ -1,11 +1,26 @@
-import Link from 'next/link';
 import Image from 'next/image';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { ProductCard } from '@/components/ui/ProductCard';
-import { products } from '@/lib/data';
+import { getProducts } from '@/lib/products';
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  let featured: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    featured = await getProducts({ isFeatured: true });
+  } catch {
+    featured = [];
+  }
+  if (featured.length === 0) {
+    try {
+      featured = (await getProducts()).slice(0, 3);
+    } catch {
+      featured = [];
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-wol-white">
       {/* Hero Section */}
@@ -32,7 +47,7 @@ export default function Home() {
       <section className="bg-[#f9f9f9] py-16 md:py-24">
         <Container>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {products.slice(0, 3).map((product) => (
+            {featured.slice(0, 3).map((product) => (
               <ProductCard key={product.id} product={product} showColorSelector={false} />
             ))}
           </div>

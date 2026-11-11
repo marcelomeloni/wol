@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, EnvelopeSimple, LockKey, User, IdentificationCard, Phone, CircleNotch } from '@phosphor-icons/react';
-import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 
 function LoginContent() {
@@ -57,12 +56,17 @@ function LoginContent() {
         setMode('login');
         setPassword('');
       }
-    } catch (error: any) {
-      if (error.isValidationError && Array.isArray(error.errors)) {
+    } catch (error) {
+      const authError = error as {
+        isValidationError?: boolean;
+        errors?: Array<{ path?: Array<string | number>; message?: string }>;
+      };
+      if (authError.isValidationError && Array.isArray(authError.errors)) {
         const errorsMap: Record<string, string> = {};
-        error.errors.forEach((err: any) => {
-          if (err.path && err.path[0]) {
-            errorsMap[err.path[0]] = err.message;
+        authError.errors.forEach((err) => {
+          const key = err.path?.[0];
+          if (key) {
+            errorsMap[String(key)] = err.message ?? '';
           }
         });
         setFieldErrors(errorsMap);
@@ -178,14 +182,6 @@ function LoginContent() {
               </div>
               {fieldErrors['password'] && <span className="text-[#e23b5d] text-xs mt-2 block font-medium">{fieldErrors['password']}</span>}
             </div>
-
-            {mode === 'login' && (
-              <div className="flex justify-end">
-                <button type="button" className="text-[10px] font-bold uppercase tracking-widest text-wol-graphite/60 hover:text-wol-graphite transition-colors">
-                  Esqueceu a senha?
-                </button>
-              </div>
-            )}
 
             <button 
               type="submit" 

@@ -1,14 +1,37 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Package, MapPin, CreditCard, Receipt, CircleNotch, Truck } from '@phosphor-icons/react';
+import { ArrowLeft, Package, Receipt, CircleNotch, Truck } from '@phosphor-icons/react';
 import { use, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
+import { API_URL } from '@/lib/api';
+
+interface OrderItem {
+  id: string;
+  snapshot_product_name: string;
+  snapshot_color_name: string | null;
+  snapshot_size_name: string | null;
+  quantity: number;
+  unit_price: number;
+}
+
+interface Order {
+  id: string;
+  status: string;
+  payment_status: string;
+  created_at: string;
+  tracking_code?: string | null;
+  subtotal_amount: number;
+  shipping_amount: number;
+  discount_amount: number;
+  total_amount: number;
+  order_items?: OrderItem[];
+}
 
 export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -17,7 +40,7 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
         const token = localStorage.getItem('@wol:token');
         if (!token) return;
 
-        const res = await fetch(`https://wolbackend.vercel.app/api/orders/${unwrappedParams.id}`, {
+        const res = await fetch(`${API_URL}/orders/${unwrappedParams.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -29,8 +52,8 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
 
         const data = await res.json();
         setOrder(data);
-      } catch (err: any) {
-        toast.error(err.message || 'Erro ao carregar detalhes do pedido');
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Erro ao carregar detalhes do pedido');
       } finally {
         setIsLoading(false);
       }
@@ -121,7 +144,7 @@ export default function PedidoDetalhesPage({ params }: { params: Promise<{ id: s
               <Package size={16} /> Itens do Pedido
             </h3>
             <div className="space-y-6">
-              {order.order_items?.map((item: any) => (
+              {order.order_items?.map((item) => (
                 <div key={item.id} className="flex items-start justify-between pb-6 border-b border-wol-graphite/5 last:border-0 last:pb-0">
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-wol-graphite uppercase tracking-wide">

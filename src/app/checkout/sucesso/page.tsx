@@ -1,11 +1,12 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Container } from '@/components/ui/Container';
-import { CheckCircle, Package, ArrowRight, CopySimple } from '@phosphor-icons/react';
+import { CheckCircle, Package, ArrowRight, CopySimple, CircleNotch, QrCode } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
+import { apiFetch } from '@/lib/api';
 
 interface OrderItem {
   id: string;
@@ -19,19 +20,30 @@ interface OrderItem {
 interface OrderData {
   id: string;
   status: string;
+  payment_status: string;
   payment_method: string;
   total_amount: number;
-  shipping_cost: number;
+  shipping_amount: number;
   discount_amount: number;
   created_at: string;
-  items: OrderItem[];
+  order_items: OrderItem[];
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Aguardando pagamento',
+  PREPARING: 'Em preparação',
+  PAYMENT_APPROVED: 'Pagamento aprovado',
+  SHIPPED: 'Enviado',
+  DELIVERED: 'Entregue',
+  CANCELED: 'Cancelado',
+};
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('id');
   const [order, setOrder] = useState<OrderData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(Boolean(orderId));
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -40,30 +52,54 @@ function SuccessContent() {
     }).format(price);
   };
 
-  useEffect(() => {
-    if (!orderId) {
-      setIsLoading(false);
-      return;
+  const fetchOrder = useCallback(async () => {
+    if (!orderId) return null;
+    try {
+      const data = await apiFetch<OrderData>(`/orders/${orderId}`);
+      setOrder(data);
+      return data;
+    } catch {
+      return null;
     }
-
-    const token = localStorage.getItem('@wol:token');
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
-
-    fetch(`https://wolbackend.vercel.app/api/orders/${orderId}`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data) setOrder(data);
-      })
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
   }, [orderId]);
 
-  const subtotal = order ? order.items?.reduce((acc: number, item: OrderItem) => acc + (item.unit_price * item.quantity), 0) : 0;
+  useEffect(() => {
+    if (!orderId) return;
+
+    let active = true;
+
+    (async () => {
+      const data = await fetchOrder();
+      if (!active) return;
+      setIsLoading(false);
+
+      // Enquanto o pagamento não for confirmado, consulta o status periodicamente.
+      if (data && data.payment_status !== 'PAID' && data.status !== 'CANCELED') {
+        pollRef.current = setInterval(async () => {
+          const updated = await fetchOrder();
+          if (!updated) return;
+          if (updated.payment_status === 'PAID') {
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = null;
+            toast.success('Pagamento confirmado! Já estamos preparando seu pedido.');
+          }
+          if (updated.status === 'CANCELED') {
+            if (pollRef.current) clearInterval(pollRef.current);
+            pollRef.current = null;
+          }
+        }, 5000);
+      }
+    })();
+
+    return () => {
+      active = false;
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [orderId, fetchOrder]);
+
+  const subtotal = order ? order.order_items?.reduce((acc: number, item: OrderItem) => acc + (item.unit_price * item.quantity), 0) : 0;
+  const isPaid = order?.payment_status === 'PAID';
+  const isCanceled = order?.status === 'CANCELED';
 
   return (
     <Container className="pt-32 pb-24 min-h-[80vh]">
@@ -74,18 +110,37 @@ function SuccessContent() {
           <div className="flex justify-center">
             <div className="relative">
               <div className="absolute inset-0 bg-wol-graphite/5 rounded-full animate-ping"></div>
-              <CheckCircle size={80} weight="fill" className="text-wol-graphite relative z-10" />
+              {isPaid ? (
+                <CheckCircle size={80} weight="fill" className="text-wol-graphite relative z-10" />
+              ) : (
+                <QrCode size={80} className="text-wol-graphite relative z-10" />
+              )}
             </div>
           </div>
 
           <div className="space-y-3">
             <h1 className="font-display text-3xl md:text-4xl tracking-widest text-wol-graphite uppercase">
-              Pedido Realizado!
+              {isCanceled
+                ? 'Pedido Cancelado'
+                : isPaid
+                  ? 'Pedido Realizado!'
+                  : 'Pedido Criado!'}
             </h1>
             <p className="text-wol-graphite/60 leading-relaxed text-sm max-w-md mx-auto">
-              Obrigado por comprar na WOL. Seu pedido foi processado e já estamos preparando tudo para que a sua luz brilhe ainda mais.
+              {isCanceled
+                ? 'Este pedido foi cancelado. Se você Efetuou um pagamento, entre em contato conosco.'
+                : isPaid
+                  ? 'Obrigado por comprar na WOL. Seu pagamento foi confirmado e já estamos preparando tudo para que a sua luz brilhe ainda mais.'
+                  : 'Seu pedido foi criado e está aguardando a confirmação do pagamento. Acompanhe o status abaixo — avisaremos assim que for aprovado.'}
             </p>
           </div>
+
+          {!isPaid && !isCanceled && (
+            <div className="flex items-center justify-center gap-2 text-xs uppercase tracking-widest text-wol-graphite/50">
+              <CircleNotch size={14} className="animate-spin" />
+              Aguardando confirmação do pagamento
+            </div>
+          )}
         </div>
 
         {/* Número do Pedido */}
@@ -117,7 +172,7 @@ function SuccessContent() {
           <div className="bg-[#f9f9f9] border border-wol-graphite/10 p-8 text-center">
             <p className="text-sm text-wol-graphite/40 uppercase tracking-widest animate-pulse">Carregando resumo...</p>
           </div>
-        ) : order && order.items && order.items.length > 0 ? (
+        ) : order && order.order_items && order.order_items.length > 0 ? (
           <div className="bg-[#f9f9f9] border border-wol-graphite/10 p-8 space-y-6">
             <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite border-b border-wol-graphite/10 pb-4">
               Resumo da Compra
@@ -125,7 +180,7 @@ function SuccessContent() {
 
             {/* Itens */}
             <div className="space-y-4">
-              {order.items.map((item: OrderItem) => (
+              {order.order_items.map((item: OrderItem) => (
                 <div key={item.id} className="flex justify-between items-center py-2 border-b border-wol-graphite/5 last:border-0">
                   <div className="flex-1">
                     <h4 className="font-bold text-wol-graphite uppercase text-xs leading-tight mb-1">
@@ -158,7 +213,7 @@ function SuccessContent() {
 
               <div className="flex justify-between text-sm">
                 <span className="text-wol-graphite/60">Frete</span>
-                <span className="font-medium text-wol-graphite">{formatPrice(order.shipping_cost || 15)}</span>
+                <span className="font-medium text-wol-graphite">{formatPrice(order.shipping_amount || 0)}</span>
               </div>
 
               <div className="flex justify-between text-lg pt-3 border-t border-wol-graphite/10">
@@ -167,12 +222,18 @@ function SuccessContent() {
               </div>
             </div>
 
-            {/* Método de Pagamento */}
-            <div className="pt-4 border-t border-wol-graphite/10">
+            {/* Método e Status de Pagamento */}
+            <div className="pt-4 border-t border-wol-graphite/10 space-y-2">
               <div className="flex justify-between items-center text-sm">
                 <span className="text-wol-graphite/60">Pagamento</span>
                 <span className="font-bold uppercase tracking-widest text-xs text-wol-graphite">
-                  {order.payment_method === 'pix' ? 'PIX' : order.payment_method === 'credit_card' ? 'Cart&atilde;o de Cr&eacute;dito' : order.payment_method}
+                  {order.payment_method?.toLowerCase() === 'pix' ? 'PIX' : order.payment_method?.toLowerCase() === 'credit_card' ? 'Cart&atilde;o de Cr&eacute;dito' : order.payment_method}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-wol-graphite/60">Status</span>
+                <span className="font-bold uppercase tracking-widest text-xs text-wol-graphite">
+                  {STATUS_LABELS[order.status] ?? order.status}
                 </span>
               </div>
             </div>

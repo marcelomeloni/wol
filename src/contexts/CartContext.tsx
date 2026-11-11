@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface CartItem {
-  id: string; // Unique ID (productId-color-size)
+  id: string; // Unique ID (variantId)
+  variantId?: string; // product_variants.id (usado pelo backend)
   productId: string;
   slug: string;
   name: string;
@@ -38,12 +39,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const storedCart = localStorage.getItem('@wol:cart');
     if (storedCart) {
       try {
-        setItems(JSON.parse(storedCart));
+        const parsedCart = JSON.parse(storedCart) as CartItem[];
+        queueMicrotask(() => setItems(parsedCart));
       } catch (error) {
         console.error('Failed to parse cart from local storage', error);
       }
     }
-    setIsLoaded(true);
+    queueMicrotask(() => setIsLoaded(true));
   }, []);
 
   // Save to local storage whenever items change
@@ -55,9 +57,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = (newItem: Omit<CartItem, 'id'>) => {
     setItems((prevItems) => {
-      // Generate unique ID based on product, color, and size
-      // This aligns perfectly with a backend order payload structure
-      const uniqueId = `${newItem.productId}-${newItem.color}-${newItem.size}`;
+      // Prioriza o variantId como chave única; fallback para product+cor+tamanho
+      const uniqueId = newItem.variantId || `${newItem.productId}-${newItem.color}-${newItem.size}`;
       
       const existingItemIndex = prevItems.findIndex(item => item.id === uniqueId);
       

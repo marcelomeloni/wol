@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { API_URL, TOKEN_KEY } from '@/lib/api';
 
 interface User {
   id: string;
@@ -13,35 +14,46 @@ interface User {
   role: string;
 }
 
+interface LoginData {
+  email: string;
+  password: string;
+}
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  cpf: string;
+  phone?: string;
+}
+
+interface ValidationError {
+  isValidationError: true;
+  errors: Array<{ path?: Array<string | number>; message?: string }>;
+}
+
+function isValidationError(error: unknown): error is ValidationError {
+  return typeof error === 'object' && error !== null && 'isValidationError' in error;
+}
+
 interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (data: any, redirectUrl?: string) => Promise<void>;
-  register: (data: any) => Promise<void>;
+  login: (data: LoginData, redirectUrl?: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-const API_URL = 'https://wolbackend.vercel.app/api';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    // Check if token exists on mount
-    const token = localStorage.getItem('@wol:token');
-    if (token) {
-      fetchMe(token);
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const fetchMe = async (token: string) => {
+  const fetchMe = useCallback(async (token: string) => {
     try {
       const res = await fetch(`${API_URL}/auth/me`, {
         headers: {
@@ -52,17 +64,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userData = await res.json();
         setUser(userData);
       } else {
-        localStorage.removeItem('@wol:token');
+        localStorage.removeItem(TOKEN_KEY);
       }
     } catch (err) {
       console.error(err);
-      localStorage.removeItem('@wol:token');
+      localStorage.removeItem(TOKEN_KEY);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const login = async (data: any, redirectUrl?: string) => {
+  useEffect(() => {
+    // Check if token exists on mount
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      queueMicrotask(() => fetchMe(token));
+    } else {
+      queueMicrotask(() => setIsLoading(false));
+    }
+  }, [fetchMe]);
+
+  const login = async (data: LoginData, redirectUrl?: string) => {
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
@@ -77,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       if (!res.ok) {
-        // Se a mensagem for um array do Zod, lanÃ§amos o objeto para o componente lidar
+        // Se a mensagem for um array do Zod, lançamos o objeto para o componente lidar
         const errorData = result?.error?.message;
         if (Array.isArray(errorData)) {
           throw { isValidationError: true, errors: errorData };
@@ -85,19 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(errorData || 'Erro ao fazer login');
       }
 
-      localStorage.setItem('@wol:token', result.token);
+      localStorage.setItem(TOKEN_KEY, result.token);
       setUser(result.user);
       toast.success('Bem-vinda de volta!');
       router.push(redirectUrl || '/minha-conta/pedidos');
-    } catch (err: any) {
-      if (!err.isValidationError) {
-        toast.error(err.message || 'Erro desconhecido');
+    } catch (err) {
+      if (!isValidationError(err)) {
+        toast.error(err instanceof Error ? err.message : 'Erro desconhecido');
       }
       throw err;
     }
   };
 
-  const register = async (data: any) => {
+  const register = async (data: RegisterData) => {
     try {
       const cpfNumeros = data.cpf.replace(/\D/g, '');
       const payload = { ...data, cpf: cpfNumeros };
@@ -122,20 +144,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(errorData || 'Erro ao criar conta');
       }
 
-      toast.success('Conta criada com sucesso! FaÃ§a login para continuar.');
-    } catch (err: any) {
-      if (!err.isValidationError) {
-        toast.error(err.message || 'Erro desconhecido');
+      toast.success('Conta criada com sucesso! Faça login para continuar.');
+    } catch (err) {
+      if (!isValidationError(err)) {
+        toast.error(err instanceof Error ? err.message : 'Erro desconhecido');
       }
       throw err;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('@wol:token');
+    localStorage.removeItem(TOKEN_KEY);
     setUser(null);
-    toast.success('VocÃª saiu da sua conta.');
-    window.location.href = '/login';
+    toast.success('Você saiu da sua conta.');
+    router.push('/login');
   };
 
   return (

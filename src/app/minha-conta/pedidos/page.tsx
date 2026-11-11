@@ -1,19 +1,18 @@
-﻿// @ts-nocheck
-'use client';
+﻿'use client';
 
 import { Package, CircleNotch, Star } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
-import { products } from '@/lib/data';
+import { API_URL } from '@/lib/api';
 
 
-const API_URL = 'https://wolbackend.vercel.app/api';
-const REVIEWABLE_STATUSES = ['PAYMENT_APPROVED', 'PREPARING', 'SHIPPED', 'DELIVERED'];
+const REVIEWABLE_STATUSES = ['DELIVERED'];
 
 interface OrderItem {
   id: string;
+  product_id: string;
   snapshot_product_name: string;
   snapshot_color_name: string;
   quantity: number;
@@ -33,42 +32,48 @@ interface Order {
 export default function MinhaContaPedidos() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [reviewedOrderIds, setReviewedOrderIds] = useState<Set<string>>(new Set());
+  const [reviewedOrderIds, setReviewedOrderIds] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const reviewed = localStorage.getItem('@wol:reviewedOrders');
+      return reviewed ? new Set<string>(JSON.parse(reviewed) as string[]) : new Set<string>();
+    } catch {
+      return new Set<string>();
+    }
+  });
   const [reviewingOrder, setReviewingOrder] = useState<Order | null>(null);
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem('@wol:token');
-      if (!token) return;
-      const res = await fetch(API_URL + '/orders', { headers: { Authorization: 'Bearer ' + token } });
-      if (!res.ok) throw new Error('Falha ao carregar pedidos');
-      setOrders(await res.json());
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao carregar pedidos');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchOrders();
-    const reviewed = localStorage.getItem('@wol:reviewedOrders');
-    if (reviewed) setReviewedOrderIds(new Set(JSON.parse(reviewed)));
+    (async () => {
+      try {
+        const token = localStorage.getItem('@wol:token');
+        if (!token) return;
+        const res = await fetch(API_URL + '/orders', {
+          headers: { Authorization: 'Bearer ' + token },
+        });
+        if (!res.ok) throw new Error('Falha ao carregar pedidos');
+        setOrders(await res.json());
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Erro ao carregar pedidos');
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   }, []);
 
   const formatPrice = (price: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
 
   const getStatusText = (status: string) => {
-    const statusMap = {
+    const statusMap: Record<string, string> = {
       PENDING: 'PENDENTE', PAYMENT_APPROVED: 'PAGO', PREPARING: 'EM SEPARACAO',
       SHIPPED: 'ENVIADO', DELIVERED: 'ENTREGUE', CANCELED: 'CANCELADO',
       WAITING: 'AGUARDANDO PAGAMENTO', PAID: 'PAGAMENTO APROVADO', REFUNDED: 'REEMBOLSADO',
     };
-    return statusMap[status] || (status && status.toUpperCase());
+    return statusMap[status] ?? status.toUpperCase();
   };
 
   const canReview = (order: Order) => {
@@ -87,10 +92,12 @@ export default function MinhaContaPedidos() {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) { toast.error('Selecione uma nota de 1 a 5 estrelas.'); return; }
-    const firstItemName = reviewingOrder.order_items[0]?.snapshot_product_name;
-    const matchedProduct = products.find(p => p.name === firstItemName);
-    const productId = matchedProduct?.id || (reviewingOrder.order_items[0] && reviewingOrder.order_items[0].product_variant_id);
-    if (!productId) { toast.error('Produto sem ID disponÃ­vel para avaliaÃ§Ã£o.'); return; }
+    const order = reviewingOrder;
+    if (!order) return;
+    // Itens antigos podem não ter product_id (antes da migration 002): pula
+    // para o primeiro item que aponta para um produto.
+    const productId = order.order_items?.find((item) => item.product_id)?.product_id;
+    if (!productId) { toast.error('Produto sem ID disponível para avaliação.'); return; }
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('@wol:token');
@@ -101,12 +108,12 @@ export default function MinhaContaPedidos() {
       });
       if (!res.ok) { const err = await res.json(); throw new Error((err && err.error && err.error.message) || 'Erro ao enviar avaliacao'); }
       toast.success('Avaliacao enviada! Obrigada pelo feedback.');
-      const newSet = new Set([...reviewedOrderIds, reviewingOrder.id]);
+      const newSet = new Set([...reviewedOrderIds, order.id]);
       setReviewedOrderIds(newSet);
       localStorage.setItem('@wol:reviewedOrders', JSON.stringify([...newSet]));
       setReviewingOrder(null);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err instanceof Error ? err.message : 'Erro ao enviar avaliacao');
     } finally {
       setIsSubmitting(false);
     }

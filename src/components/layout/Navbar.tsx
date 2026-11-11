@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Bag, List, X, InstagramLogo, User } from "@phosphor-icons/react";
+import { Bag, List, X, User } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/Container";
 import { useCart } from "@/contexts/CartContext";
@@ -19,15 +20,8 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const { isCartOpen, toggleCart, items, totalItems, totalPrice, updateQuantity, removeItem } = useCart();
   const { isAuthenticated } = useAuth();
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const toggleMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
@@ -174,7 +168,7 @@ export function Navbar() {
               {items.map((item) => (
                 <div key={item.id} className="flex gap-4 bg-wol-white p-3 border border-wol-graphite/5 shadow-sm">
                   <div className="w-20 h-24 bg-[#f1f1f1] relative shrink-0">
-                    <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
+                    <Image src={item.image || '/homeimage.jpg'} alt={item.name} fill sizes="80px" className="object-cover" />
                   </div>
                   <div className="flex flex-col flex-1 justify-between py-1">
                     <div>

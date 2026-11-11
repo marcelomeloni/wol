@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
 import { MapPin, Plus, Trash, CircleNotch, X } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
 import { useEffect, useState } from 'react';
+import { API_URL } from '@/lib/api';
 
 interface Address {
   id: string;
@@ -14,6 +15,10 @@ interface Address {
   state: string;
   zip_code: string;
   is_main: boolean;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
 }
 
 export default function MinhaContaEnderecos() {
@@ -32,7 +37,7 @@ export default function MinhaContaEnderecos() {
   const [isFetchingCep, setIsFetchingCep] = useState(false);
 
   const handleCepChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    let cep = e.target.value.replace(/\D/g, '');
+    const cep = e.target.value.replace(/\D/g, '');
     
     // Mask CEP as 00000-000
     let maskedCep = cep;
@@ -51,11 +56,11 @@ export default function MinhaContaEnderecos() {
           setNeighborhood(data.bairro || '');
           setCity(data.localidade || '');
           setState(data.uf || '');
-          // Optamos por nÃ£o dar auto-focus via ref por simplicidade, mas os dados jÃ¡ preenchem
+          // Optamos por não dar auto-focus via ref por simplicidade, mas os dados já preenchem
         } else {
-          toast.error('CEP nÃ£o encontrado');
+          toast.error('CEP não encontrado');
         }
-      } catch (error) {
+      } catch {
         toast.error('Erro ao buscar o CEP');
       } finally {
         setIsFetchingCep(false);
@@ -64,51 +69,55 @@ export default function MinhaContaEnderecos() {
   };
 
   const fetchAddresses = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem('@wol:token');
-      if (!token) return;
+    const token = localStorage.getItem('@wol:token');
+    if (!token) return;
 
-      const res = await fetch('https://wolbackend.vercel.app/api/addresses', {
+    try {
+      const res = await fetch(`${API_URL}/addresses`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      if (!res.ok) throw new Error('Falha ao carregar endereÃ§os');
+      if (!res.ok) throw new Error('Falha ao carregar endereços');
       
       const data = await res.json();
       setAddresses(data);
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao carregar endereÃ§os');
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Erro ao carregar endereços'));
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAddresses();
+    const token = localStorage.getItem('@wol:token');
+    if (!token) {
+      queueMicrotask(() => setIsLoading(false));
+      return;
+    }
+    queueMicrotask(() => fetchAddresses());
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Deseja realmente remover este endereÃ§o?')) return;
+    if (!confirm('Deseja realmente remover este endereço?')) return;
     try {
       const token = localStorage.getItem('@wol:token');
-      const res = await fetch(`https://wolbackend.vercel.app/api/addresses/${id}`, {
+      const res = await fetch(`${API_URL}/addresses/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
-      if (!res.ok) throw new Error('Falha ao remover endereÃ§o');
-      toast.success('EndereÃ§o removido com sucesso!');
+      if (!res.ok) throw new Error('Falha ao remover endereço');
+      toast.success('Endereço removido com sucesso!');
       fetchAddresses();
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao remover endereÃ§o');
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Erro ao remover endereço'));
     }
   };
 
   const handleSetMain = async (address: Address) => {
     try {
       const token = localStorage.getItem('@wol:token');
-      const res = await fetch(`https://wolbackend.vercel.app/api/addresses/${address.id}`, {
+      const res = await fetch(`${API_URL}/addresses/${address.id}`, {
         method: 'PUT',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -127,10 +136,10 @@ export default function MinhaContaEnderecos() {
       });
       
       if (!res.ok) throw new Error('Falha ao definir como principal');
-      toast.success('EndereÃ§o atualizado como principal!');
+      toast.success('Endereço atualizado como principal!');
       fetchAddresses();
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao atualizar endereÃ§o');
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Erro ao atualizar endereço'));
     }
   };
 
@@ -139,7 +148,7 @@ export default function MinhaContaEnderecos() {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('@wol:token');
-      const res = await fetch('https://wolbackend.vercel.app/api/addresses', {
+      const res = await fetch(`${API_URL}/addresses`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -150,13 +159,13 @@ export default function MinhaContaEnderecos() {
         })
       });
       
-      if (!res.ok) throw new Error('Falha ao adicionar endereÃ§o');
-      toast.success('EndereÃ§o adicionado com sucesso!');
+      if (!res.ok) throw new Error('Falha ao adicionar endereço');
+      toast.success('Endereço adicionado com sucesso!');
       setShowAddForm(false);
       setStreet(''); setNumber(''); setComplement(''); setNeighborhood(''); setCity(''); setState(''); setZipCode('');
       fetchAddresses();
-    } catch (err: any) {
-      toast.error(err.message || 'Erro ao adicionar endereÃ§o');
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Erro ao adicionar endereço'));
     } finally {
       setIsSubmitting(false);
     }
@@ -167,7 +176,7 @@ export default function MinhaContaEnderecos() {
       <div className="border-b border-wol-graphite/10 pb-4 flex justify-between items-center">
         <div>
           <h2 className="text-sm font-bold uppercase tracking-widest text-wol-graphite mb-2 flex items-center gap-2">
-            <MapPin size={20} /> EndereÃ§os
+            <MapPin size={20} /> Endereços
           </h2>
           
         </div>
@@ -184,7 +193,7 @@ export default function MinhaContaEnderecos() {
       {showAddForm && (
         <form onSubmit={handleAddSubmit} className="border border-wol-graphite/10 p-6 space-y-4">
           <div className="flex justify-between items-center mb-4 border-b border-wol-graphite/10 pb-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite">Novo EndereÃ§o</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-wol-graphite">Novo Endereço</h3>
             <button type="button" onClick={() => setShowAddForm(false)} className="text-wol-graphite/60 hover:text-wol-graphite">
               <X size={16} />
             </button>
@@ -196,7 +205,7 @@ export default function MinhaContaEnderecos() {
             </div>
             <input required type="text" placeholder="Rua / Avenida" value={street} onChange={e => setStreet(e.target.value)} className="border border-wol-graphite/20 h-10 px-4 text-sm outline-none" disabled={isFetchingCep} />
             <div className="grid grid-cols-2 gap-4">
-              <input required type="text" placeholder="NÃºmero" value={number} onChange={e => setNumber(e.target.value)} className="border border-wol-graphite/20 h-10 px-4 text-sm outline-none" />
+              <input required type="text" placeholder="Número" value={number} onChange={e => setNumber(e.target.value)} className="border border-wol-graphite/20 h-10 px-4 text-sm outline-none" />
               <input type="text" placeholder="Complemento" value={complement} onChange={e => setComplement(e.target.value)} className="border border-wol-graphite/20 h-10 px-4 text-sm outline-none" />
             </div>
             <input required type="text" placeholder="Bairro" value={neighborhood} onChange={e => setNeighborhood(e.target.value)} className="border border-wol-graphite/20 h-10 px-4 text-sm outline-none" disabled={isFetchingCep} />
@@ -207,7 +216,7 @@ export default function MinhaContaEnderecos() {
           </div>
           <div className="pt-4 flex justify-end">
             <button type="submit" disabled={isSubmitting} className="bg-wol-graphite text-wol-white px-6 h-10 text-[10px] uppercase font-bold tracking-widest flex items-center gap-2">
-              {isSubmitting ? <CircleNotch size={14} className="animate-spin" /> : 'Salvar EndereÃ§o'}
+              {isSubmitting ? <CircleNotch size={14} className="animate-spin" /> : 'Salvar Endereço'}
             </button>
           </div>
         </form>
@@ -219,7 +228,7 @@ export default function MinhaContaEnderecos() {
         </div>
       ) : addresses.length === 0 ? (
         <div className="text-center py-12 border border-dashed border-wol-graphite/20">
-          <p className="text-sm text-wol-graphite/60 uppercase tracking-widest">Nenhum endereÃ§o cadastrado.</p>
+          <p className="text-sm text-wol-graphite/60 uppercase tracking-widest">Nenhum endereço cadastrado.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

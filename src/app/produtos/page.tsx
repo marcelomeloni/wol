@@ -1,10 +1,17 @@
-'use client';
-
 import { Container } from '@/components/ui/Container';
 import { ProductCard } from '@/components/ui/ProductCard';
-import { products } from '@/lib/data';
+import { getProducts } from '@/lib/products';
 
-export default function ProdutosPage() {
+export const revalidate = 60;
+
+export default async function ProdutosPage() {
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    products = await getProducts();
+  } catch {
+    products = [];
+  }
+
   return (
     <div className="min-h-screen bg-[#f9f9f9] pt-24 md:pt-32 pb-24">
       <Container>
@@ -19,11 +26,17 @@ export default function ProdutosPage() {
           </h1>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {products.length === 0 ? (
+          <p className="text-center text-sm text-wol-graphite/60 uppercase tracking-widest">
+            Nenhum produto disponível no momento.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </Container>
     </div>
   );

@@ -1,15 +1,33 @@
 ﻿import { NextResponse } from 'next/server';
 
-export async function GET(request: Request, context: { params: Promise<{ productId: string }> }) {
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ||
+  'https://wolbackend.vercel.app/api';
+
+// Proxy para o backend. Nenhuma credencial do Supabase fica exposta no frontend.
+export async function GET(
+  _request: Request,
+  context: { params: Promise<{ productId: string }> },
+) {
   const params = await context.params;
-  const url = `https://npkqxlylgibvposrgqai.supabase.co/rest/v1/reviews?product_id=eq.${params.productId}&select=*,users(name)`;
-  const res = await fetch(url, {
-    headers: {
-      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wa3F4bHlsZ2lidnBvc3JncWFpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjU1Mzk5NCwiZXhwIjoyMDk4MTI5OTk0fQ.3Oy9ac4yWBRv6CAUcXGZa0-lky7sS7JjW1uuQZjkDpQ',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wa3F4bHlsZ2lidnBvc3JncWFpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjU1Mzk5NCwiZXhwIjoyMDk4MTI5OTk0fQ.3Oy9ac4yWBRv6CAUcXGZa0-lky7sS7JjW1uuQZjkDpQ'
-    },
-    cache: 'no-store'
-  });
-  const data = await res.json();
-  return NextResponse.json(data);
+
+  try {
+    const res = await fetch(`${API_URL}/reviews/product/${params.productId}`, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: { code: 'REVIEWS_UNAVAILABLE', message: 'Não foi possível carregar avaliações.' } },
+        { status: res.status },
+      );
+    }
+
+    return NextResponse.json(await res.json());
+  } catch {
+    return NextResponse.json(
+      { error: { code: 'REVIEWS_UNAVAILABLE', message: 'Não foi possível carregar avaliações.' } },
+      { status: 502 },
+    );
+  }
 }
